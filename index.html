@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام مدرسة التاج النموذجية المتكامل</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
+    body { background: #f1f5f9; color: #1e293b; direction: rtl; }
+    .hidden { display: none !important; }
+
+    /* شاشة الدخول الموحدة في منتصف الشاشة */
+    #login-screen {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: #f8fafc; z-index: 99999;
+    }
+    .login-card {
+      width: 95%; max-width: 420px; background: #fff; padding: 30px;
+      border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0; text-align: center;
+    }
+    .login-logo { width: 70px; height: 70px; border-radius: 50%; margin-bottom: 10px; object-fit: contain; }
+    .login-card h2 { margin-bottom: 5px; color: #0f172a; font-size: 1.4rem; }
+    .login-card p { color: #64748b; font-size: 0.85rem; margin-bottom: 20px; }
+    
+    .role-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: #f1f5f9; padding: 5px; border-radius: 8px; }
+    .role-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: transparent; color: #64748b; }
+    .role-btn.active { background: #0284c7; color: #fff; }
+
+    .form-group { margin-bottom: 15px; text-align: right; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; }
+    input[type="text"], input[type="password"], input[type="number"], input[type="date"], input[type="tel"], select, textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none;
+    }
+    input:focus, select:focus { border-color: #0284c7; }
+    .error-msg { color: #dc2626; font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; }
+
+    /* الأزرار العامة */
+    .btn { padding: 9px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-primary { background: #0284c7; color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-block { width: 100%; padding: 12px; }
+    .btn-sm { padding: 5px 10px; font-size: 0.8rem; margin: 2px; }
+    .btn-pay { background: #10b981; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    .btn-unpay { background: #f59e0b; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+
+    /* لوحة التحكم والقوائم */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: 240px; background: #0f172a; color: #fff; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 20px 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1e293b; }
+    .logo-img { width: 45px; height: 45px; border-radius: 50%; }
+    .sidebar-nav { flex: 1; padding: 15px 0; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #94a3b8; text-decoration: none; cursor: pointer; }
+    .nav-item.active, .nav-item:hover { background: #1e293b; color: #fff; border-right: 4px solid #0284c7; }
+    .sidebar-footer { padding: 15px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
+    .main { flex: 1; overflow-y: auto; padding: 25px; }
+
+    .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .stat-card { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px; }
+    .stat-icon { font-size: 2rem; }
+    .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px; }
+    .form-row .form-group { flex: 1 1 200px; }
+    .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; }
+    .data-table th, .data-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; }
+    .data-table th { background: #f8fafc; color: #475569; }
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+    .b-active { background: #dcfce7; color: #166534; }
+    .b-left { background: #fee2e2; color: #991b1b; }
+    .b-paid { background: #dcfce7; color: #166534; }
+    .b-unpaid { background: #fee2e2; color: #991b1b; }
+
+    /* ملخص الخزينة */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+    .sum-box { padding: 12px; border-radius: 6px; text-align: center; }
+    .sum-box.green { background: #dcfce7; color: #166534; }
+    .sum-box.red { background: #fee2e2; color: #991b1b; }
+    .sum-box.blue { background: #e0f2fe; color: #0369a1; }
+    .sum-box .num { font-size: 1.2rem; font-weight: bold; }
+
+    /* الصورة وبطاقة الطالب */
+    .photo-upload-box { display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 15px; }
+    .photo-preview-wrap { width: 70px; height: 85px; background: #e2e8f0; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; }
+    .photo-preview-wrap img, .student-thumb-img { width: 100%; height: 100%; object-fit: cover; }
+    .student-thumb-img { width: 35px; height: 42px; border-radius: 4px; display: inline-block; }
+
+    /* نوافذ الطباعة */
+    .modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 999999; }
+    .card-modal-box, .receipt-modal-box, .report-modal-box { background: #fff; padding: 20px; border-radius: 10px; max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto; }
+    .report-modal-box { max-width: 850px; }
+    
+    .student-id-card { width: 330px; margin: 0 auto; border: 2px solid #0284c7; border-radius: 10px; overflow: hidden; background: #fff; }
+    .id-header { background: #0284c7; color: #fff; padding: 10px; display: flex; align-items: center; gap: 10px; }
+    .id-body { display: flex; padding: 12px; gap: 12px; align-items: center; }
+    .id-photo-box { width: 80px; height: 100px; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden; }
+    .id-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+    .id-row { font-size: 0.8rem; margin-bottom: 4px; }
+    .id-footer { background: #f8fafc; padding: 8px; display: flex; justify-content: space-between; font-size: 0.75rem; border-top: 1px dashed #cbd5e1; }
+
+    .receipt-paper { border: 2px dashed #94a3b8; padding: 20px; background: #fff; }
+    .receipt-amount-box { background: #f0fdf4; border: 2px solid #22c55e; border-radius: 6px; padding: 10px; text-align: center; font-size: 1.3rem; font-weight: bold; color: #166534; margin: 15px 0; }
+
+    .report-sheet { padding: 10px; }
+    .report-header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 15px; }
+
+    @media print {
+      body * { visibility: hidden !important; }
+      .modal, .student-id-card, .student-id-card *, .receipt-paper, .receipt-paper *, .report-sheet, .report-sheet * { visibility: visible !important; }
+      .modal { position: absolute; left: 0; top: 0; background: transparent; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= 1. شاشة الدخول الموحدة ================= -->
+  <div id="login-screen">
+    <div class="login-card">
+      <img src="logo.png" class="login-logo" alt="شعار" onerror="this.style.display='none'">
+      <h2>مدرسة التاج النموذجية</h2>
+      <p>بوابة الإدارة، المعلمين، والطلاب</p>
+      
+      <div class="role-tabs">
+        <button type="button" class="role-btn active" id="btn-role-admin" onclick="switchLoginRole('staff')">الإدارة / المعلم</button>
+        <button type="button" class="role-btn" id="btn-role-student" onclick="switchLoginRole('student')">دخول الطالب</button>
+      </div>
+
+      <!-- نموذج دخول الإدارة والمعلم -->
+      <div id="login-staff-box">
+        <div class="form-group">
+          <label>اسم المستخدم</label>
+          <input type="text" id="login-username" value="admin">
+        </div>
+        <div class="form-group">
+          <label>كلمة المرور</label>
+          <input type="password" id="login-password" value="123">
+        </div>
+      </div>
+
+      <!-- نموذج دخول الطالب برقم القيد -->
+      <div id="login-student-box" class="hidden">
+        <div class="form-group">
+          <label>رقم القيد / الملف المدرسي الخاص بك *</label>
+          <input type="text" id="login-student-fileno" placeholder="أدخل رقم قيدك مثلا: 101">
+        </div>
+        <p style="font-size:0.75rem; color:#64748b; margin-top:-5px; margin-bottom:12px; text-align:right;">
+          * يمكنك الحصول على رقم القيد من بطاقتك المدرسية أو من إدارة المدرسة
+        </p>
+      </div>
+      
+      <div id="login-error" class="error-msg"></div>
+      <button type="button" class="btn btn-primary btn-block" onclick="doLogin()">تسجيل الدخول</button>
+    </div>
+  </div>
+
+  <!-- ================= 2. لوحة تحكم الإدارة ================= -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="logo.png" class="logo-img" alt="شعار" onerror="this.style.display='none'">
+        <div><strong>مدرسة التاج</strong></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" onclick="showScreen('dashboard')">📊 الرئيسية</a>
+        <a class="nav-item" onclick="showScreen('students')">👨‍🎓 شؤون الطلاب والكشوف</a>
+        <a class="nav-item" onclick="showScreen('register')">➕ تسجيل طالب</a>
+        <a class="nav-item" onclick="showScreen('payments')">💳 الخزينة والرسوم</a>
+        <a class="nav-item" onclick="showScreen('settings')">⚙️ الإعدادات والرسوم</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span>👤 المدير</span>
+        <button type="button" class="btn btn-danger btn-sm" onclick="doLogout()">خروج</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- الإحصائيات -->
+      <section id="screen-dashboard" class="screen">
+        <h2>لوحة المعلومات</h2>
+        <div class="stats-grid" style="margin-top:15px;">
+          <div class="stat-card"><div class="stat-icon">👨‍🎓</div><div><h3 id="stat-total">0</h3><p>إجمالي الطلاب</p></div></div>
+          <div class="stat-card"><div class="stat-icon">✅</div><div><h3 id="stat-active">0</h3><p>الطلاب المقيدين</p></div></div>
+          <div class="stat-card"><div class="stat-icon">🏫</div><div><h3 id="stat-primary">0</h3><p>المرحلة الابتدائية</p></div></div>
+          <div class="stat-card"><div class="stat-icon">🏫</div><div><h3 id="stat-prep">0</h3><p>المرحلة الإعدادية</p></div></div>
+          <div class="stat-card"><div class="stat-icon">🏫</div><div><h3 id="stat-sec">0</h3><p>المرحلة الثانوية</p></div></div>
+        </div>
+      </section>
+
+      <!-- شؤون الطلاب والكشوف والتقارير -->
+      <section id="screen-students" class="screen hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+          <h2>📋 كشوفات الطلاب حسب المراحل</h2>
+          <div>
+            <button class="btn btn-success" onclick="openReportModal()">📄 كشف تقرير المرحلة للطباعة</button>
+            <button class="btn btn-primary" onclick="showScreen('register')">➕ إضافة طالب جديد</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>فلترة حسب المرحلة الدراسية</label>
+              <select id="filter-stage" onchange="renderStudents()">
+                <option value="">جميع المراحل</option>
+                <option value="الابتدائية">المرحلة الابتدائية</option>
+                <option value="الإعدادية">المرحلة الإعدادية</option>
+                <option value="الثانوية">المرحلة الثانوية</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>بحث بالاسم أو القيد</label>
+              <input type="text" id="search-student" placeholder="🔍 اكتب اسم الطالب..." oninput="renderStudents()">
+            </div>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الصورة</th><th>الاسم</th><th>رقم القيد</th><th>المرحلة</th><th>الصف</th><th>هاتف الطوارئ</th><th>الحالة</th><th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- تسجيل طالب -->
+      <section id="screen-register" class="screen hidden">
+        <h2>➕ تسجيل طالب جديد</h2>
+        <div class="card" style="margin-top:15px;">
+          <form id="student-form" onsubmit="saveStudent(event)">
+            <input type="hidden" id="edit-id">
+            <input type="hidden" id="student-photo-val">
+
+            <div class="photo-upload-box">
+              <div class="photo-preview-wrap">
+                <img id="photo-preview" style="display:none;">
+                <span id="photo-ph">👤 صورة</span>
+              </div>
+              <div>
+                <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
+                  📷 اختيار صورة الطالب
+                  <input type="file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group"><label>الاسم الكامل للطالب *</label><input type="text" id="f-name" required></div>
+              <div class="form-group"><label>رقم القيد / الملف *</label><input type="text" id="f-fileno" required></div>
+              <div class="form-group"><label>رقم هاتف الطوارئ (ولي الأمر) *</label><input type="tel" id="f-phone" required></div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>المرحلة *</label>
+                <select id="f-stage" onchange="updateGrades(this.value)" required>
+                  <option value="الابتدائية">الابتدائية</option>
+                  <option value="الإعدادية">الإعدادية</option>
+                  <option value="الثانوية">الثانوية</option>
+                </select>
+              </div>
+              <div class="form-group"><label>الصف *</label><select id="f-grade" required></select></div>
+              <div class="form-group">
+                <label>حالة القيد</label>
+                <select id="f-status"><option value="active">مقيد</option><option value="left">منسحب</option></select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top:10px;">💾 حفظ بيانات الطالب</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- الخزينة والرسوم النقدية -->
+      <section id="screen-payments" class="screen hidden">
+        <h2>💳 الخزينة والرسوم النقدية الشهرية</h2>
+        <div class="card" style="margin-top:15px;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>الشهر والسنة المستحقة</label>
+              <select id="pay-month-select" onchange="renderPayments()"></select>
+            </div>
+            <div class="form-group">
+              <label>عرض مرحلة معينة</label>
+              <select id="pay-stage-filter" onchange="renderPayments()">
+                <option value="">كل المراحل</option>
+                <option value="الابتدائية">الابتدائية</option>
+                <option value="الإعدادية">الإعدادية</option>
+                <option value="الثانوية">الثانوية</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="summary-grid" id="pay-summary-boxes"></div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>م</th><th>الطالب</th><th>المرحلة والصف</th><th>الرسوم المستحقة</th><th>طريقة الدفع</th><th>الحالة</th><th>رقم الإيصال</th><th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="payments-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- الإعدادات والرسوم والمعلمين -->
+      <section id="screen-settings" class="screen hidden">
+        <h2>⚙️ الإعدادات وتحديد رسوم المراحل</h2>
+        <div class="card" style="margin-top:15px;">
+          <h3>🏫 بيانات المدرسة والعملة النقدية</h3>
+          <div class="form-row" style="margin-top:10px;">
+            <div class="form-group"><label>اسم المدرسة</label><input type="text" id="set-school-name" value="مدرسة التاج النموذجية"></div>
+            <div class="form-group"><label>العام الدراسي</label><input type="text" id="set-year" value="2024-2025"></div>
+            <div class="form-group">
+              <label>العملة النقدية</label>
+              <select id="set-currency">
+                <option value="₪" selected>شيكل (₪)</option>
+                <option value="ر.س">ريال سعودي (ر.س)</option>
+                <option value="د.أ">دينار أردني (د.أ)</option>
+                <option value="$">دولار أمريكي ($)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>💰 تحديد قيمة الرسوم الشهرية لكل مرحلة</h3>
+          <p class="muted" style="color:#64748b; font-size:0.85rem; margin-bottom:12px;">سيتم احتساب هذا المبلغ نقدياً لكل طالب في الخزينة والوصل بناءً على مرحلته</p>
+          <div class="form-row">
+            <div class="form-group"><label>رسوم المرحلة الابتدائية</label><input type="number" id="fee-primary" value="150"></div>
+            <div class="form-group"><label>رسوم المرحلة الإعدادية</label><input type="number" id="fee-preparatory" value="200"></div>
+            <div class="form-group"><label>رسوم المرحلة الثانوية</label><input type="number" id="fee-secondary" value="250"></div>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ إعدادات المدرسة والرسوم</button>
+        </div>
+
+        <div class="card">
+          <h3>👨‍🏫 إدارة حسابات المعلمين وموادهم</h3>
+          <div class="form-row" style="margin-top:10px;">
+            <div class="form-group"><label>اسم المعلم</label><input type="text" id="t-name"></div>
+            <div class="form-group"><label>المادة الأساسية</label><input type="text" id="t-subject" placeholder="مثال: رياضيات"></div>
+            <div class="form-group">
+              <label>المرحلة</label>
+              <select id="t-stage">
+                <option value="الابتدائية">الابتدائية</option>
+                <option value="الإعدادية">الإعدادية</option>
+                <option value="الثانوية">الثانوية</option>
+              </select>
+            </div>
+            <div class="form-group"><label>اسم الدخول (إنجليزي)</label><input type="text" id="t-user"></div>
+            <div class="form-group"><label>كلمة المرور</label><input type="text" id="t-pass"></div>
+          </div>
+          <button class="btn btn-primary" onclick="addTeacher()">➕ إضافة المعلم</button>
+          <table class="data-table" style="margin-top:15px;">
+            <thead><tr><th>المعلم</th><th>المادة</th><th>المرحلة</th><th>اسم الدخول</th><th>كلمة المرور</th><th>إجراء</th></tr></thead>
+            <tbody id="teachers-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ================= 3. بوابة المعلم التفاعلية ================= -->
+  <div id="teacher-app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="logo.png" class="logo-img" alt="شعار" onerror="this.style.display='none'">
+        <div><strong>بوابة المعلم</strong></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" onclick="switchTeacherTab('materials')">📚 رفع وحفظ المواد</a>
+        <a class="nav-item" onclick="switchTeacherTab('homeworks')">📥 واجبات الطلاب المستلمة</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="t-display-name">المعلم</span>
+        <button class="btn btn-danger btn-sm" onclick="doLogout()">خروج</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- قسم رفع المواد والدروس للمدرس -->
+      <div id="teacher-materials-section">
+        <h2>📚 رفع وحفظ المواد والدروس التعليمية</h2>
+        <div class="card" style="margin-top:15px;">
+          <div class="form-row">
+            <div class="form-group"><label>عنوان الدرس / الشرح *</label><input type="text" id="mat-title" placeholder="ملخص الوحدة الأولى"></div>
+            <div class="form-group"><label>المادة الدراسية *</label><input type="text" id="mat-sub" placeholder="رياضيات"></div>
+            <div class="form-group"><label>الصف الدراسي المستهدف *</label><select id="mat-grade"></select></div>
+            <div class="form-group"><label>الملف (PDF أو صورة) *</label><input type="file" id="mat-file"></div>
+          </div>
+          <button class="btn btn-primary" onclick="uploadMaterial()">⬆️ حفظ ورفع المادة للطلاب</button>
+        </div>
+
+        <div class="card">
+          <h3>📁 موادي المحفوظة على صفحتي</h3>
+          <table class="data-table">
+            <thead><tr><th>م</th><th>عنوان الدرس</th><th>المادة</th><th>الصف</th><th>تاريخ الرفع</th><th>إجراء</th></tr></thead>
+            <tbody id="teacher-mats-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- قسم استقبال وتصحيح واجبات الطلاب -->
+      <div id="teacher-homeworks-section" class="hidden">
+        <h2>📥 الواجبات والحلول المرفوعة من الطلاب</h2>
+        <div class="card" style="margin-top:15px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>م</th><th>اسم الطالب</th><th>الصف</th><th>المادة</th><th>ملاحظة الطالب</th><th>تاريخ التسليم</th><th>ملف الحل المرفق</th>
+              </tr>
+            </thead>
+            <tbody id="teacher-hw-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= 4. بوابة الطالب التعليمية ================= -->
+  <div id="student-app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="logo.png" class="logo-img" alt="شعار" onerror="this.style.display='none'">
+        <div><strong>بوابة الطالب</strong></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" onclick="switchStudentTab('lessons')">📖 الشروحات والدروس</a>
+        <a class="nav-item" onclick="switchStudentTab('upload-hw')">📤 رفع واجب لمعلمي</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="std-display-name">طالب</span>
+        <button class="btn btn-danger btn-sm" onclick="doLogout()">خروج</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="card" style="background:#e0f2fe; border-color:#7dd3fc; margin-bottom:15px;">
+        <h3 id="std-welcome-title">مرحباً بك</h3>
+        <p style="font-size:0.85rem; color:#0369a1;" id="std-info-sub"></p>
+      </div>
+
+      <!-- قسم تحميل الدروس للطالب -->
+      <div id="student-lessons-section">
+        <h2>📚 المواد والدروس المتاحة لصفك الدراسي</h2>
+        <div class="card" style="margin-top:15px;">
+          <table class="data-table">
+            <thead>
+              <tr><th>م</th><th>عنوان الدرس</th><th>المادة</th><th>المعلم</th><th>تاريخ الرفع</th><th>تحميل الدرس</th></tr>
+            </thead>
+            <tbody id="std-mats-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- قسم رفع الواجب للمعلم -->
+      <div id="student-upload-hw-section" class="hidden">
+        <h2>📤 إرسال ورفع حل الواجب للمعلم</h2>
+        <div class="card" style="margin-top:15px;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>اختر المعلم والمادة *</label>
+              <select id="hw-target-teacher"></select>
+            </div>
+            <div class="form-group">
+              <label>ملاحظة أو عنوان الواجب</label>
+              <input type="text" id="hw-note" placeholder="حل تدريبات صفحة 25">
+            </div>
+            <div class="form-group">
+              <label>ملف الواجب (صورة الحل أو PDF) *</label>
+              <input type="file" id="hw-file">
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="studentSubmitHomework()">⬆️ تسليم الواجب للمعلم</button>
+        </div>
+
+        <div class="card">
+          <h3>سجل واجباتي التي قمت بتسليمها</h3>
+          <table class="data-table">
+            <thead><tr><th>المادة</th><th>المعلم</th><th>ملاحظتي</th><th>تاريخ الإرسال</th><th>الملف</th></tr></thead>
+            <tbody id="std-my-hw-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= 5. نافذة بطاقة الطالب ================= -->
+  <div id="card-modal" class="modal hidden">
+    <div class="card-modal-box">
+      <div class="no-print" style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ طباعة البطاقة</button>
+        <button class="btn btn-secondary" onclick="closeModal('card-modal')">✖ إغلاق</button>
+      </div>
+      <div class="student-id-card">
+        <div class="id-header"><h4 id="card-school">مدرسة التاج النموذجية</h4></div>
+        <div class="id-body">
+          <div class="id-photo-box"><img id="card-photo" src=""></div>
+          <div>
+            <h4 id="card-name" style="margin-bottom:5px;">اسم الطالب</h4>
+            <div class="id-row">رقم القيد: <strong id="card-fileno">---</strong></div>
+            <div class="id-row">المرحلة: <strong id="card-stage">---</strong></div>
+            <div class="id-row">الصف: <strong id="card-grade">---</strong></div>
+            <div class="id-row">العام: <strong id="card-year">2024-2025</strong></div>
+            <div class="id-row" style="color:#dc2626; font-weight:bold;">📞 طوارئ: <span id="card-phone">---</span></div>
+          </div>
+        </div>
+        <div class="id-footer"><span>بطاقة طالب مدرسية</span><span>ختم الإدارة</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 6. نافذة إيصال الدفع النقدي ================= -->
+  <div id="receipt-modal" class="modal hidden">
+    <div class="receipt-modal-box">
+      <div class="no-print" style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ طباعة الوصل</button>
+        <button class="btn btn-secondary" onclick="closeModal('receipt-modal')">✖ إغلاق</button>
+      </div>
+      <div class="receipt-paper">
+        <h3 id="rec-school" style="text-align:center;">مدرسة التاج النموذجية</h3>
+        <p style="text-align:center; color:#64748b; margin-bottom:15px;">وصل سداد رسوم نقدية</p>
+        <hr style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+          <span>رقم الإيصال: <strong id="rec-no">---</strong></span>
+          <span>التاريخ: <strong id="rec-date">---</strong></span>
+        </div>
+        <p style="margin-bottom:8px;">استلمنا من الطالب: <strong id="rec-name">---</strong></p>
+        <p style="margin-bottom:8px;">المرحلة والصف: <span id="rec-stage-grade">---</span></p>
+        <p style="margin-bottom:8px;">عن شهر: <strong id="rec-month">---</strong></p>
+        <p style="margin-bottom:8px;">طريقة الدفع: <strong>نقداً (كاش)</strong></p>
+        <div class="receipt-amount-box">المبلغ: <span id="rec-amount">0</span> <span id="rec-curr">₪</span></div>
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+          <div>توقيع أمين الصندوق: .............</div>
+          <div>ختم واعتماد المدرسة</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 7. نافذة التقرير وكشف المرحلة الشامل ================= -->
+  <div id="report-modal" class="modal hidden">
+    <div class="report-modal-box">
+      <div class="no-print" style="display:flex; justify-content:space-between; margin-bottom:15px;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ طباعة التقرير والكشف</button>
+        <button class="btn btn-secondary" onclick="closeModal('report-modal')">✖ إغلاق</button>
+      </div>
+
+      <div class="report-sheet">
+        <div class="report-header">
+          <h2 id="rep-school">مدرسة التاج النموذجية</h2>
+          <h4 id="rep-title" style="color:#0284c7; margin-top:5px;">تقرير وكشف الطلاب العام</h4>
+          <p style="font-size:0.85rem; color:#64748b; margin-top:4px;">العام الدراسي: <span id="rep-year"></span> | تاريخ الاستخراج: <span id="rep-date"></span></p>
+        </div>
+
+        <div style="margin-bottom:15px; background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+          <div style="display:flex; justify-content:space-around; font-size:0.9rem;">
+            <div>إجمالي طلاب الكشف: <strong id="rep-total-count">0</strong></div>
+            <div>المقيدين: <strong id="rep-active-count" style="color:#16a34a;">0</strong></div>
+            <div>إجمالي الرسوم المتوقعة: <strong id="rep-expected-fees">0</strong> <span class="curr-lbl">₪</span></div>
+          </div>
+        </div>
+
+        <table class="data-table" style="font-size:0.8rem;">
+          <thead>
+            <tr><th>م</th><th>اسم الطالب</th><th>رقم القيد</th><th>المرحلة</th><th>الصف الدراسي</th><th>هاتف الطوارئ</th><th>الحالة</th></tr>
+          </thead>
+          <tbody id="rep-tbody"></tbody>
+        </table>
+
+        <div style="display:flex; justify-content:space-between; margin-top:35px; padding:0 20px;">
+          <div>إعداد شؤون الطلاب: ....................</div>
+          <div>اعتماد مدير المدرسة: ....................</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= منطق وبرمجة النظام التفاعلي بالكامل ================= -->
+  <script>
+    const getStore = k => JSON.parse(localStorage.getItem(k) || '[]');
+    const setStore = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+    let currentLoggedInTeacher = null;
+    let currentLoggedInStudent = null;
+    let activeLoginRole = 'staff';
+
+    // الإعدادات الافتراضية
+    function getSettings(){
+      const def = {
+        schoolName: 'مدرسة التاج النموذجية',
+        year: '2024-2025',
+        currency: '₪',
+        fees: { primary: 150, preparatory: 200, secondary: 250 }
+      };
+      const saved = localStorage.getItem('taj_cfg');
+      if(!saved) return def;
+      try {
+        const obj = JSON.parse(saved);
+        if(!obj.fees) obj.fees = def.fees;
+        return obj;
+      } catch(e) { return def; }
+    }
+    const setSettings = v => localStorage.setItem('taj_cfg', JSON.stringify(v));
+
+    // التبديل في شاشة الدخول
+    function switchLoginRole(role){
+      activeLoginRole = role;
+      document.getElementById('btn-role-admin').classList.toggle('active', role === 'staff');
+      document.getElementById('btn-role-student').classList.toggle('active', role === 'student');
+      document.getElementById('login-staff-box').classList.toggle('hidden', role !== 'staff');
+      document.getElementById('login-student-box').classList.toggle('hidden', role !== 'student');
+      document.getElementById('login-error').textContent = '';
+    }
+
+    // تسجيل الدخول (إدارة / معلم / طالب)
+    function doLogin(){
+      const err = document.getElementById('login-error');
+      err.textContent = '';
+
+      if(activeLoginRole === 'staff'){
+        const u = document.getElementById('login-username').value.trim();
+        const p = document.getElementById('login-password').value.trim();
+
+        // 1. الإدارة
+        if(u === 'admin' && p === '123'){
+          document.getElementById('login-screen').classList.add('hidden');
+          document.getElementById('app').classList.remove('hidden');
+          showScreen('dashboard');
+          return;
+        }
+
+        // 2. المعلم
+        const teachers = getStore('taj_teachers');
+        const teacher = teachers.find(t => t.user === u && t.pass === p);
+        if(teacher){
+          currentLoggedInTeacher = teacher;
+          document.getElementById('login-screen').classList.add('hidden');
+          document.getElementById('teacher-app').classList.remove('hidden');
+          document.getElementById('t-display-name').textContent = teacher.name;
+          document.getElementById('mat-sub').value = teacher.subject || '';
+          
+          // ملء صفوف المرحلة الخاصة بهذا المعلم
+          const stg = teacher.stage || 'الابتدائية';
+          document.getElementById('mat-grade').innerHTML = (grades[stg] || []).map(g => `<option value="${g}">${g}</option>`).join('');
+          
+          renderTeacherMaterials();
+          renderTeacherHomeworks();
+          return;
+        }
+
+        err.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+      } else {
+        // 3. الطالب برقم القيد
+        const fileno = document.getElementById('login-student-fileno').value.trim();
+        if(!fileno){
+          err.textContent = '⚠️ يرجى كتابة رقم القيد الخاص بك';
+          return;
+        }
+
+        const students = getStore('taj_students');
+        const student = students.find(s => s.fileno.toLowerCase() === fileno.toLowerCase());
+        if(student){
+          currentLoggedInStudent = student;
+          document.getElementById('login-screen').classList.add('hidden');
+          document.getElementById('student-app').classList.remove('hidden');
+          document.getElementById('std-display-name').textContent = student.name;
+          document.getElementById('std-welcome-title').textContent = `أهلاً بك يا بطل: ${student.name}`;
+          document.getElementById('std-info-sub').textContent = `المرحلة: ${student.stage} | الصف: ${student.grade} | رقم القيد: ${student.fileno}`;
+          
+          fillStudentTeachersSelect();
+          renderStudentMaterials();
+          renderStudentMyHomeworks();
+          return;
+        }
+
+        err.textContent = '❌ رقم القيد هذا غير مسجل في شؤون الطلاب!';
+      }
+    }
+
+    function doLogout(){
+      currentLoggedInTeacher = null;
+      currentLoggedInStudent = null;
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('teacher-app').classList.add('hidden');
+      document.getElementById('student-app').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+    }
+
+    // التنقل في لوحة الإدارة
+    function showScreen(name){
+      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+      document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
+      const sc = document.getElementById('screen-' + name);
+      if(sc) sc.classList.remove('hidden');
+
+      if(name === 'dashboard') updateDashboard();
+      if(name === 'students') renderStudents();
+      if(name === 'payments') { fillMonths(); renderPayments(); }
+      if(name === 'settings') { loadSettings(); renderTeachers(); }
+    }
+
+    // الصفوف الدراسية
+    const grades = {
+      'الابتدائية': ['الأول الابتدائي','الثاني الابتدائي','الثالث الابتدائي','الرابع الابتدائي','الخامس الابتدائي','السادس الابتدائي'],
+      'الإعدادية': ['الأول الإعدادي','الثاني الإعدادي','الثالث الإعدادي'],
+      'الثانوية': ['الأول الثانوي','الثاني الثانوي','الثالث الثانوي']
+    };
+    function updateGrades(stg){
+      const el = document.getElementById('f-grade');
+      el.innerHTML = (grades[stg] || []).map(g => `<option value="${g}">${g}</option>`).join('');
+    }
+    updateGrades('الابتدائية');
+
+    // صورة وتسجيل الطالب
+    function handlePhotoUpload(input){
+      if(input.files && input.files[0]){
+        const r = new FileReader();
+        r.onload = e => {
+          document.getElementById('student-photo-val').value = e.target.result;
+          document.getElementById('photo-preview').src = e.target.result;
+          document.getElementById('photo-preview').style.display = 'block';
+          document.getElementById('photo-ph').style.display = 'none';
+        };
+        r.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function saveStudent(e){
+      e.preventDefault();
+      const students = getStore('taj_students');
+      const fileno = document.getElementById('f-fileno').value.trim();
+
+      if(students.some(s => s.fileno.toLowerCase() === fileno.toLowerCase())){
+        alert('❌ رقم القيد هذا مستخدم بالفعل لطالب آخر');
+        return;
+      }
+
+      const data = {
+        id: 'S' + Date.now(),
+        name: document.getElementById('f-name').value.trim(),
+        fileno: fileno,
+        phone: document.getElementById('f-phone').value.trim(),
+        stage: document.getElementById('f-stage').value,
+        grade: document.getElementById('f-grade').value,
+        status: document.getElementById('f-status').value,
+        photo: document.getElementById('student-photo-val').value
+      };
+      students.push(data);
+      setStore('taj_students', students);
+      alert('✅ تم تسجيل الطالب بنجاح! رقم القيد لدخول الطالب هو: ' + data.fileno);
+      document.getElementById('student-form').reset();
+      document.getElementById('photo-preview').style.display = 'none';
+      document.getElementById('photo-ph').style.display = 'block';
+      showScreen('students');
+    }
+
+    function renderStudents(){
+      const q = (document.getElementById('search-student')?.value || '').trim().toLowerCase();
+      const stageF = document.getElementById('filter-stage')?.value || '';
+      let list = getStore('taj_students');
+      if(stageF) list = list.filter(s => s.stage === stageF);
+      if(q) list = list.filter(s => s.name.toLowerCase().includes(q) || s.fileno.includes(q));
+      
+      const tb = document.getElementById('students-tbody');
+      if(!list.length){
+        tb.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#64748b;">لا توجد سجلات مطابقة</td></tr>`;
+        return;
+      }
+
+      tb.innerHTML = list.map(s => `
+        <tr>
+          <td><img src="${s.photo || 'logo.png'}" class="student-thumb-img" onerror="this.src='logo.png'"></td>
+          <td><strong>${s.name}</strong></td>
+          <td><code>${s.fileno}</code></td>
+          <td>${s.stage}</td>
+          <td>${s.grade}</td>
+          <td style="color:#dc2626; font-weight:bold;">${s.phone || '—'}</td>
+          <td><span class="badge ${s.status==='active'?'b-active':'b-left'}">${s.status==='active'?'مقيد':'منسحب'}</span></td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="showCard('${s.id}')">🪪 بطاقة الطالب</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function deleteStudent(id){
+      if(!confirm('حذف هذا الطالب نهائياً؟')) return;
+      setStore('taj_students', getStore('taj_students').filter(s => s.id !== id));
+      renderStudents();
+    }
+
+    function updateDashboard(){
+      const s = getStore('taj_students');
+      document.getElementById('stat-total').textContent = s.length;
+      document.getElementById('stat-active').textContent = s.filter(x => x.status === 'active').length;
+      document.getElementById('stat-primary').textContent = s.filter(x => x.stage === 'الابتدائية').length;
+      document.getElementById('stat-prep').textContent = s.filter(x => x.stage === 'الإعدادية').length;
+      document.getElementById('stat-sec').textContent = s.filter(x => x.stage === 'الثانوية').length;
+    }
+
+    // بطاقة الطالب
+    function showCard(id){
+      const s = getStore('taj_students').find(x => x.id === id);
+      if(!s) return;
+      const cfg = getSettings();
+      document.getElementById('card-school').textContent = cfg.schoolName;
+      document.getElementById('card-name').textContent = s.name;
+      document.getElementById('card-fileno').textContent = s.fileno;
+      document.getElementById('card-stage').textContent = s.stage;
+      document.getElementById('card-grade').textContent = s.grade;
+      document.getElementById('card-year').textContent = cfg.year;
+      document.getElementById('card-phone').textContent = s.phone;
+      document.getElementById('card-photo').src = s.photo || 'logo.png';
+      document.getElementById('card-modal').classList.remove('hidden');
+    }
+
+    // الرسوم والخزينة
+    function getFeeForStudent(stage){
+      const cfg = getSettings();
+      if(stage === 'الابتدائية') return cfg.fees.primary;
+      if(stage === 'الإعدادية') return cfg.fees.preparatory;
+      if(stage === 'الثانوية') return cfg.fees.secondary;
+      return 150;
+    }
+
+    function fillMonths(){
+      const sel = document.getElementById('pay-month-select');
+      const cfg = getSettings();
+      const match = (cfg.year || '').match(/\d{4}/);
+      const y = match ? parseInt(match[0]) : 2024;
+
+      sel.innerHTML = [1,2,3,4,5,6,7,8,9,10,11,12].map(m => 
+        `<option value="${y}-${String(m).padStart(2,'0')}">شهر ${m} (${y})</option>`
+      ).join('');
+    }
+
+    function renderPayments(){
+      const m = document.getElementById('pay-month-select').value;
+      const stageF = document.getElementById('pay-stage-filter').value;
+      let students = getStore('taj_students').filter(s => s.status === 'active');
+      if(stageF) students = students.filter(s => s.stage === stageF);
+
+      const payments = getStore('taj_pays');
+      const cfg = getSettings();
+
+      let totalExpected = 0, totalPaid = 0;
+
+      const tb = document.getElementById('payments-tbody');
+      tb.innerHTML = students.map((s, idx) => {
+        const fee = getFeeForStudent(s.stage);
+        totalExpected += fee;
+        const p = payments.find(x => x.sid === s.id && x.m === m);
+        const isPaid = !!p;
+        if(isPaid) totalPaid += (p.amt || fee);
+
+        return `
+          <tr>
+            <td>${idx+1}</td>
+            <td><strong>${s.name}</strong></td>
+            <td>${s.stage} - ${s.grade}</td>
+            <td><strong>${fee} ${cfg.currency}</strong></td>
+            <td>${isPaid ? 'نقداً (كاش)' : '—'}</td>
+            <td><span class="badge ${isPaid?'b-paid':'b-unpaid'}">${isPaid?'مسدد':'غير مسدد'}</span></td>
+            <td><code>${isPaid ? p.recNo : '—'}</code></td>
+            <td>
+              ${isPaid 
+                ? `<button class="btn btn-primary btn-sm" onclick="showReceipt('${p.id}')">🧾 طباعة الوصل</button>
+                   <button class="btn-unpay" onclick="cancelPay('${s.id}','${m}')">إلغاء</button>` 
+                : `<button class="btn-pay" onclick="payCash('${s.id}','${m}',${fee})">💵 سداد نقدي (كاش)</button>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('pay-summary-boxes').innerHTML = `
+        <div class="sum-box blue"><div class="num">${students.length}</div><div>الطلاب</div></div>
+        <div class="sum-box green"><div class="num">${totalPaid} ${cfg.currency}</div><div>المحصّل نقداً</div></div>
+        <div class="sum-box red"><div class="num">${totalExpected - totalPaid} ${cfg.currency}</div><div>المتبقي تحصيله</div></div>
+      `;
+    }
+
+    function payCash(sid, m, amt){
+      const pays = getStore('taj_pays');
+      const newPay = {
+        id: 'P' + Date.now(),
+        sid: sid, m: m, amt: amt,
+        date: new Date().toISOString().slice(0,10),
+        recNo: 'REC-' + (pays.length + 101)
+      };
+      pays.push(newPay);
+      setStore('taj_pays', pays);
+      renderPayments();
+      showReceipt(newPay.id);
+    }
+
+    function cancelPay(sid, m){
+      if(!confirm('إلغاء عملية الدفع؟')) return;
+      setStore('taj_pays', getStore('taj_pays').filter(x => !(x.sid === sid && x.m === m)));
+      renderPayments();
+    }
+
+    function showReceipt(pid){
+      const p = getStore('taj_pays').find(x => x.id === pid);
+      const s = getStore('taj_students').find(x => x.id === p.sid);
+      const cfg = getSettings();
+
+      document.getElementById('rec-school').textContent = cfg.schoolName;
+      document.getElementById('rec-no').textContent = p.recNo;
+      document.getElementById('rec-date').textContent = p.date;
+      document.getElementById('rec-name').textContent = s.name;
+      document.getElementById('rec-stage-grade').textContent = `${s.stage} - ${s.grade}`;
+      document.getElementById('rec-month').textContent = p.m;
+      document.getElementById('rec-amount').textContent = p.amt;
+      document.getElementById('rec-curr').textContent = cfg.currency;
+      document.getElementById('receipt-modal').classList.remove('hidden');
+    }
+
+    // كشف التقرير المطبوع
+    function openReportModal(){
+      const cfg = getSettings();
+      const stageF = document.getElementById('filter-stage').value;
+      let list = getStore('taj_students');
+      if(stageF) list = list.filter(s => s.stage === stageF);
+
+      document.getElementById('rep-school').textContent = cfg.schoolName;
+      document.getElementById('rep-title').textContent = stageF ? `كشف تقرير الطلاب - المرحلة ${stageF}` : 'كشف تقرير الطلاب العام لجميع المراحل';
+      document.getElementById('rep-year').textContent = cfg.year;
+      document.getElementById('rep-date').textContent = new Date().toLocaleDateString('ar-EG');
+      document.querySelectorAll('.curr-lbl').forEach(e => e.textContent = cfg.currency);
+
+      const activeList = list.filter(s => s.status === 'active');
+      document.getElementById('rep-total-count').textContent = list.length;
+      document.getElementById('rep-active-count').textContent = activeList.length;
+
+      let expFees = 0;
+      activeList.forEach(s => expFees += getFeeForStudent(s.stage));
+      document.getElementById('rep-expected-fees').textContent = expFees.toLocaleString('ar-SA');
+
+      document.getElementById('rep-tbody').innerHTML = list.map((s, idx) => `
+        <tr>
+          <td>${idx+1}</td>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.fileno}</td>
+          <td>${s.stage}</td>
+          <td>${s.grade}</td>
+          <td>${s.phone || '—'}</td>
+          <td>${s.status === 'active' ? 'مقيد' : 'منسحب'}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('report-modal').classList.remove('hidden');
+    }
+
+    // الإعدادات
+    function loadSettings(){
+      const c = getSettings();
+      document.getElementById('set-school-name').value = c.schoolName;
+      document.getElementById('set-year').value = c.year;
+      document.getElementById('set-currency').value = c.currency;
+      document.getElementById('fee-primary').value = c.fees.primary;
+      document.getElementById('fee-preparatory').value = c.fees.preparatory;
+      document.getElementById('fee-secondary').value = c.fees.secondary;
+    }
+
+    function saveSettings(){
+      const c = {
+        schoolName: document.getElementById('set-school-name').value.trim(),
+        year: document.getElementById('set-year').value.trim(),
+        currency: document.getElementById('set-currency').value,
+        fees: {
+          primary: parseInt(document.getElementById('fee-primary').value) || 0,
+          preparatory: parseInt(document.getElementById('fee-preparatory').value) || 0,
+          secondary: parseInt(document.getElementById('fee-secondary').value) || 0
+        }
+      };
+      setSettings(c);
+      fillMonths();
+      alert('✅ تم حفظ إعدادات المدرسة والرسوم النقدية بنجاح');
+    }
+
+    // إدارة المعلمين
+    function addTeacher(){
+      const name = document.getElementById('t-name').value.trim();
+      const sub = document.getElementById('t-subject').value.trim();
+      const stage = document.getElementById('t-stage').value;
+      const user = document.getElementById('t-user').value.trim().toLowerCase();
+      const pass = document.getElementById('t-pass').value.trim();
+      if(!name || !user || !pass) return alert('أكمل بيانات المعلم');
+
+      const list = getStore('taj_teachers');
+      if(list.some(t => t.user.toLowerCase() === user)) return alert('اسم الدخول مستخدم بالفعل');
+
+      list.push({ id:'T'+Date.now(), name, subject:sub, stage, user, pass });
+      setStore('taj_teachers', list);
+      document.getElementById('t-name').value = '';
+      document.getElementById('t-subject').value = '';
+      document.getElementById('t-user').value = '';
+      document.getElementById('t-pass').value = '';
+      renderTeachers();
+      alert('✅ تم إضافة المعلم بنجاح');
+    }
+
+    function renderTeachers(){
+      const list = getStore('taj_teachers');
+      document.getElementById('teachers-tbody').innerHTML = list.map(t => `
+        <tr>
+          <td><strong>${t.name}</strong></td>
+          <td>${t.subject || '—'}</td>
+          <td>${t.stage || '—'}</td>
+          <td><code>${t.user}</code></td>
+          <td><code>${t.pass}</code></td>
+          <td><button class="btn btn-danger btn-sm" onclick="delTeacher('${t.id}')">🗑️</button></td>
+        </tr>
+      `).join('');
+    }
+    function delTeacher(id){
+      setStore('taj_teachers', getStore('taj_teachers').filter(t => t.id !== id));
+      renderTeachers();
+    }
+
+    /* ================= منطق بوابة المعلم ================= */
+    function switchTeacherTab(tab){
+      document.getElementById('teacher-materials-section').classList.toggle('hidden', tab !== 'materials');
+      document.getElementById('teacher-homeworks-section').classList.toggle('hidden', tab !== 'homeworks');
+      if(tab === 'materials') renderTeacherMaterials();
+      if(tab === 'homeworks') renderTeacherHomeworks();
+    }
+
+    function uploadMaterial(){
+      const title = document.getElementById('mat-title').value.trim();
+      const sub = document.getElementById('mat-sub').value.trim();
+      const grade = document.getElementById('mat-grade').value;
+      const fileInput = document.getElementById('mat-file');
+
+      if(!title || !fileInput.files[0]){
+        alert('⚠️ يرجى كتابة عنوان الدرس واختيار ملف');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        const mats = getStore('taj_materials');
+        mats.push({
+          id: 'M' + Date.now(),
+          teacherId: currentLoggedInTeacher.id,
+          teacherName: currentLoggedInTeacher.name,
+          stage: currentLoggedInTeacher.stage,
+          grade: grade,
+          subject: sub,
+          title: title,
+          fileName: file.name,
+          fileData: e.target.result,
+          date: new Date().toISOString().slice(0, 10)
+        });
+        setStore('taj_materials', mats);
+        alert('✅ تم رفع الدرس وحفظه بصفحتك بنجاح وسيكون متاحاً للطلاب!');
+        document.getElementById('mat-title').value = '';
+        fileInput.value = '';
+        renderTeacherMaterials();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderTeacherMaterials(){
+      const list = getStore('taj_materials').filter(m => m.teacherId === currentLoggedInTeacher.id);
+      const tb = document.getElementById('teacher-mats-tbody');
+      if(!list.length){
+        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#64748b;">لم ترفع أي مواد حتى الآن</td></tr>`;
+        return;
+      }
+      tb.innerHTML = list.map((m, idx) => `
+        <tr>
+          <td>${idx+1}</td>
+          <td><strong>${m.title}</strong></td>
+          <td>${m.subject}</td>
+          <td>${m.grade}</td>
+          <td>${m.date}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${m.fileData}', '${m.fileName}')">⬇️ تحميل</button>
+            <button class="btn btn-danger btn-sm" onclick="delMaterial('${m.id}')">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function delMaterial(id){
+      if(!confirm('حذف هذا الدرس؟')) return;
+      setStore('taj_materials', getStore('taj_materials').filter(m => m.id !== id));
+      renderTeacherMaterials();
+    }
+
+    function renderTeacherHomeworks(){
+      const hwList = getStore('taj_homeworks').filter(h => h.teacherId === currentLoggedInTeacher.id);
+      const tb = document.getElementById('teacher-hw-tbody');
+      if(!hwList.length){
+        tb.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:15px; color:#64748b;">لا توجد واجبات مرفوعة من الطلاب حتى الآن</td></tr>`;
+        return;
+      }
+      tb.innerHTML = hwList.map((h, idx) => `
+        <tr>
+          <td>${idx+1}</td>
+          <td><strong>${h.studentName}</strong> (قيد: ${h.studentFileno})</td>
+          <td>${h.studentGrade}</td>
+          <td>${h.subject}</td>
+          <td>${h.note || '—'}</td>
+          <td>${h.date}</td>
+          <td>
+            <button class="btn btn-success btn-sm" onclick="downloadFile('${h.fileData}', '${h.fileName}')">⬇️ تحميل حل الواجب</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    /* ================= منطق بوابة الطالب ================= */
+    function switchStudentTab(tab){
+      document.getElementById('student-lessons-section').classList.toggle('hidden', tab !== 'lessons');
+      document.getElementById('student-upload-hw-section').classList.toggle('hidden', tab !== 'upload-hw');
+      if(tab === 'lessons') renderStudentMaterials();
+      if(tab === 'upload-hw') renderStudentMyHomeworks();
+    }
+
+    function fillStudentTeachersSelect(){
+      const teachers = getStore('taj_teachers').filter(t => t.stage === currentLoggedInStudent.stage);
+      const sel = document.getElementById('hw-target-teacher');
+      if(!teachers.length){
+        sel.innerHTML = '<option value="">لا يوجد معلمون مسجلون لمرحلتك حالياً</option>';
+        return;
+      }
+      sel.innerHTML = teachers.map(t => `<option value="${t.id}">${t.name} (مادة: ${t.subject || 'عام'})</option>`).join('');
+    }
+
+    function renderStudentMaterials(){
+      // المواد المخصصة لصف ومرحلة الطالب فقط
+      const mats = getStore('taj_materials').filter(m => m.stage === currentLoggedInStudent.stage && m.grade === currentLoggedInStudent.grade);
+      const tb = document.getElementById('std-mats-tbody');
+      if(!mats.length){
+        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#64748b;">لا توجد دروس مرفوعة لصفك الدراسي حالياً</td></tr>`;
+        return;
+      }
+      tb.innerHTML = mats.map((m, idx) => `
+        <tr>
+          <td>${idx+1}</td>
+          <td><strong>${m.title}</strong></td>
+          <td><span class="badge b-active">${m.subject}</span></td>
+          <td>${m.teacherName}</td>
+          <td>${m.date}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${m.fileData}', '${m.fileName}')">⬇️ تحميل الدرس والمرفق</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function studentSubmitHomework(){
+      const tSelect = document.getElementById('hw-target-teacher');
+      const teacherId = tSelect.value;
+      const note = document.getElementById('hw-note').value.trim();
+      const fileInput = document.getElementById('hw-file');
+
+      if(!teacherId || !fileInput.files[0]){
+        alert('⚠️ يرجى اختيار المعلم وتحديد ملف الحل لرفعه');
+        return;
+      }
+
+      const teacherObj = getStore('taj_teachers').find(t => t.id === teacherId);
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        const hwList = getStore('taj_homeworks');
+        hwList.push({
+          id: 'HW' + Date.now(),
+          teacherId: teacherId,
+          teacherName: teacherObj ? teacherObj.name : 'المعلم',
+          subject: teacherObj ? teacherObj.subject : 'مادة',
+          studentId: currentLoggedInStudent.id,
+          studentName: currentLoggedInStudent.name,
+          studentFileno: currentLoggedInStudent.fileno,
+          studentGrade: currentLoggedInStudent.grade,
+          note: note,
+          fileName: file.name,
+          fileData: e.target.result,
+          date: new Date().toISOString().slice(0, 10)
+        });
+        setStore('taj_homeworks', hwList);
+        alert('✅ رائع! تم إرسال الواجب لمعلمك بنجاح وسيقوم بمراجعته.');
+        document.getElementById('hw-note').value = '';
+        fileInput.value = '';
+        renderStudentMyHomeworks();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderStudentMyHomeworks(){
+      const myHw = getStore('taj_homeworks').filter(h => h.studentId === currentLoggedInStudent.id);
+      const tb = document.getElementById('std-my-hw-tbody');
+      if(!myHw.length){
+        tb.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:15px; color:#64748b;">لم تقم بتسليم أي واجبات بعد</td></tr>`;
+        return;
+      }
+      tb.innerHTML = myHw.map(h => `
+        <tr>
+          <td><strong>${h.subject}</strong></td>
+          <td>${h.teacherName}</td>
+          <td>${h.note || '—'}</td>
+          <td>${h.date}</td>
+          <td><button class="btn btn-secondary btn-sm" onclick="downloadFile('${h.fileData}', '${h.fileName}')">📄 فتح الملف</button></td>
+        </tr>
+      `).join('');
+    }
+
+    // تنزيل الملفات
+    function downloadFile(dataUrl, name){
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = name || 'ملف_تعليمي';
+      a.click();
+    }
+
+    function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+  </script>
+</body>
+</html>
+
