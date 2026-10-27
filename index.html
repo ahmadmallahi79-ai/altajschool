@@ -3,105 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>نظام مدرسة التاج النموذجية المتكامل</title>
+  <title>نظام مدرسة التاج النموذجية المحاسبي والإداري</title>
+  <!-- مكتبة توليد QR Code المباشرة -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
-    body { background: #f1f5f9; color: #1e293b; direction: rtl; }
+    body { background: #f8fafc; color: #1e293b; direction: rtl; }
     .hidden { display: none !important; }
 
     /* شاشة الدخول الموحدة في منتصف الشاشة */
     #login-screen {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       display: flex; align-items: center; justify-content: center;
-      background: #f8fafc; z-index: 99999;
+      background: #f1f5f9; z-index: 99999;
     }
     .login-card {
-      width: 95%; max-width: 420px; background: #fff; padding: 30px;
-      border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      width: 95%; max-width: 420px; background: #fff; padding: 35px 30px;
+      border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.06);
       border: 1px solid #e2e8f0; text-align: center;
     }
-    .login-logo { width: 70px; height: 70px; border-radius: 50%; margin-bottom: 10px; object-fit: contain; }
-    .login-card h2 { margin-bottom: 5px; color: #0f172a; font-size: 1.4rem; }
-    .login-card p { color: #64748b; font-size: 0.85rem; margin-bottom: 20px; }
+    .login-logo { width: 75px; height: 75px; border-radius: 50%; margin-bottom: 12px; object-fit: contain; }
+    .login-card h2 { margin-bottom: 6px; color: #0f172a; font-size: 1.4rem; }
+    .login-card p { color: #64748b; font-size: 0.85rem; margin-bottom: 22px; }
     
-    .role-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: #f1f5f9; padding: 5px; border-radius: 8px; }
-    .role-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: transparent; color: #64748b; }
+    .role-tabs { display: flex; gap: 6px; margin-bottom: 20px; background: #f1f5f9; padding: 5px; border-radius: 8px; }
+    .role-btn { flex: 1; padding: 9px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: transparent; color: #64748b; font-size: 0.85rem; }
     .role-btn.active { background: #0284c7; color: #fff; }
 
     .form-group { margin-bottom: 15px; text-align: right; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: #334155; }
     input[type="text"], input[type="password"], input[type="number"], input[type="date"], input[type="tel"], select, textarea {
-      width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none;
+      width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; outline: none; background: #fff;
     }
-    input:focus, select:focus { border-color: #0284c7; }
+    input:focus, select:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.1); }
     .error-msg { color: #dc2626; font-size: 0.85rem; margin-bottom: 12px; font-weight: bold; }
 
     /* الأزرار العامة */
-    .btn { padding: 9px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn { padding: 9px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
     .btn-primary { background: #0284c7; color: #fff; }
+    .btn-primary:hover { background: #0369a1; }
     .btn-secondary { background: #e2e8f0; color: #334155; }
     .btn-success { background: #16a34a; color: #fff; }
     .btn-danger { background: #ef4444; color: #fff; }
     .btn-block { width: 100%; padding: 12px; }
     .btn-sm { padding: 5px 10px; font-size: 0.8rem; margin: 2px; }
-    .btn-pay { background: #10b981; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
-    .btn-unpay { background: #f59e0b; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 
     /* لوحة التحكم والقوائم */
     .app { display: flex; height: 100vh; overflow: hidden; }
-    .sidebar { width: 240px; background: #0f172a; color: #fff; display: flex; flex-direction: column; }
-    .sidebar-header { padding: 20px 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1e293b; }
+    .sidebar { width: 250px; background: #0f172a; color: #fff; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 20px 15px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1e293b; }
     .logo-img { width: 45px; height: 45px; border-radius: 50%; }
-    .sidebar-nav { flex: 1; padding: 15px 0; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 20px; color: #94a3b8; text-decoration: none; cursor: pointer; }
+    .sidebar-nav { flex: 1; padding: 15px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #94a3b8; text-decoration: none; cursor: pointer; font-size: 0.9rem; }
     .nav-item.active, .nav-item:hover { background: #1e293b; color: #fff; border-right: 4px solid #0284c7; }
     .sidebar-footer { padding: 15px; border-top: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
     .main { flex: 1; overflow-y: auto; padding: 25px; }
 
-    .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-    .stat-card { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px; }
-    .stat-icon { font-size: 2rem; }
+    .card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .stat-card { background: #fff; padding: 18px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px; }
+    .stat-icon { font-size: 2.2rem; }
     .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px; }
     .form-row .form-group { flex: 1 1 200px; }
+    
     .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; }
-    .data-table th, .data-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; }
-    .data-table th { background: #f8fafc; color: #475569; }
-    .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+    .data-table th, .data-table td { padding: 11px 12px; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; }
+    .data-table th { background: #f8fafc; color: #475569; font-weight: 600; }
+    
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; display: inline-block; }
     .b-active { background: #dcfce7; color: #166534; }
     .b-left { background: #fee2e2; color: #991b1b; }
     .b-paid { background: #dcfce7; color: #166534; }
+    .b-partial { background: #fef3c7; color: #b45309; }
     .b-unpaid { background: #fee2e2; color: #991b1b; }
 
-    /* ملخص الخزينة */
-    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
-    .sum-box { padding: 12px; border-radius: 6px; text-align: center; }
-    .sum-box.green { background: #dcfce7; color: #166534; }
-    .sum-box.red { background: #fee2e2; color: #991b1b; }
-    .sum-box.blue { background: #e0f2fe; color: #0369a1; }
-    .sum-box .num { font-size: 1.2rem; font-weight: bold; }
+    /* لوحة المالية الإجمالية */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .sum-box { padding: 16px; border-radius: 8px; text-align: center; border: 1px solid transparent; }
+    .sum-box.green { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+    .sum-box.red { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .sum-box.blue { background: #f0f9ff; border-color: #bae6fd; color: #0369a1; }
+    .sum-box .num { font-size: 1.4rem; font-weight: bold; margin-bottom: 4px; }
+    .sum-box .lbl { font-size: 0.85rem; font-weight: 600; }
 
     /* الصورة وبطاقة الطالب */
     .photo-upload-box { display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 15px; }
-    .photo-preview-wrap { width: 70px; height: 85px; background: #e2e8f0; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; }
+    .photo-preview-wrap { width: 75px; height: 90px; background: #e2e8f0; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; }
     .photo-preview-wrap img, .student-thumb-img { width: 100%; height: 100%; object-fit: cover; }
-    .student-thumb-img { width: 35px; height: 42px; border-radius: 4px; display: inline-block; }
+    .student-thumb-img { width: 38px; height: 46px; border-radius: 4px; display: inline-block; }
 
     /* نوافذ الطباعة */
     .modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 999999; }
-    .card-modal-box, .receipt-modal-box, .report-modal-box { background: #fff; padding: 20px; border-radius: 10px; max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto; }
+    .card-modal-box, .receipt-modal-box, .report-modal-box, .pay-modal-box { background: #fff; padding: 22px; border-radius: 12px; max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto; }
     .report-modal-box { max-width: 850px; }
+    .pay-modal-box { max-width: 480px; }
     
-    .student-id-card { width: 330px; margin: 0 auto; border: 2px solid #0284c7; border-radius: 10px; overflow: hidden; background: #fff; }
-    .id-header { background: #0284c7; color: #fff; padding: 10px; display: flex; align-items: center; gap: 10px; }
+    /* هوية الطالب مع الـ QR Code */
+    .student-id-card { width: 340px; margin: 0 auto; border: 2px solid #0284c7; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .id-header { background: #0284c7; color: #fff; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
     .id-body { display: flex; padding: 12px; gap: 12px; align-items: center; }
-    .id-photo-box { width: 80px; height: 100px; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden; }
+    .id-photo-box { width: 85px; height: 105px; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
     .id-photo-box img { width: 100%; height: 100%; object-fit: cover; }
-    .id-row { font-size: 0.8rem; margin-bottom: 4px; }
-    .id-footer { background: #f8fafc; padding: 8px; display: flex; justify-content: space-between; font-size: 0.75rem; border-top: 1px dashed #cbd5e1; }
+    .id-row { font-size: 0.8rem; margin-bottom: 4px; color: #334155; }
+    .id-footer { background: #f8fafc; padding: 10px; display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #cbd5e1; }
+    #qrcode-container { width: 65px; height: 65px; background: #fff; padding: 3px; border: 1px solid #cbd5e1; border-radius: 4px; }
 
-    .receipt-paper { border: 2px dashed #94a3b8; padding: 20px; background: #fff; }
-    .receipt-amount-box { background: #f0fdf4; border: 2px solid #22c55e; border-radius: 6px; padding: 10px; text-align: center; font-size: 1.3rem; font-weight: bold; color: #166534; margin: 15px 0; }
+    /* إيصال القبض المالي */
+    .receipt-paper { border: 2px dashed #94a3b8; padding: 22px; background: #fff; }
+    .receipt-amount-box { background: #f0fdf4; border: 2px solid #22c55e; border-radius: 8px; padding: 12px; text-align: center; font-size: 1.35rem; font-weight: bold; color: #166534; margin: 15px 0; }
 
     .report-sheet { padding: 10px; }
     .report-header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 15px; }
@@ -116,38 +125,38 @@
 </head>
 <body>
 
-  <!-- ================= 1. شاشة الدخول الموحدة ================= -->
+  <!-- ================= 1. شاشة الدخول الموحدة (فارغة بدون حفظ مسبق) ================= -->
   <div id="login-screen">
     <div class="login-card">
       <img src="logo.png" class="login-logo" alt="شعار" onerror="this.style.display='none'">
       <h2>مدرسة التاج النموذجية</h2>
-      <p>بوابة الإدارة، المعلمين، والطلاب</p>
+      <p>النظام المالي، الإداري، وشؤون الطلاب</p>
       
       <div class="role-tabs">
         <button type="button" class="role-btn active" id="btn-role-admin" onclick="switchLoginRole('staff')">الإدارة / المعلم</button>
         <button type="button" class="role-btn" id="btn-role-student" onclick="switchLoginRole('student')">دخول الطالب</button>
       </div>
 
-      <!-- نموذج دخول الإدارة والمعلم -->
+      <!-- نموذج دخول الإدارة والمعلم (الحقول فارغة تماماً) -->
       <div id="login-staff-box">
         <div class="form-group">
           <label>اسم المستخدم</label>
-       <input type="text" id="login-username" placeholder="أدخل اسم المستخدم">
+          <input type="text" id="login-username" placeholder="اكتب اسم المستخدم" autocomplete="off">
         </div>
         <div class="form-group">
           <label>كلمة المرور</label>
-        <input type="password" id="login-password" placeholder="أدخل كلمة المرور">
+          <input type="password" id="login-password" placeholder="اكتب كلمة المرور" autocomplete="off">
         </div>
       </div>
 
       <!-- نموذج دخول الطالب برقم القيد -->
       <div id="login-student-box" class="hidden">
         <div class="form-group">
-          <label>رقم القيد / الملف المدرسي الخاص بك *</label>
-          <input type="text" id="login-student-fileno" placeholder="أدخل رقم قيدك مثلا: 101">
+          <label>رقم القيد / الملف المدرسي *</label>
+          <input type="text" id="login-student-fileno" placeholder="أدخل رقم قيدك مثلا: 101" autocomplete="off">
         </div>
         <p style="font-size:0.75rem; color:#64748b; margin-top:-5px; margin-bottom:12px; text-align:right;">
-          * يمكنك الحصول على رقم القيد من بطاقتك المدرسية أو من إدارة المدرسة
+          * رقم القيد موجود على بطاقتك المدرسية أو في وصل استلام الرسوم
         </p>
       </div>
       
@@ -156,7 +165,7 @@
     </div>
   </div>
 
-  <!-- ================= 2. لوحة تحكم الإدارة ================= -->
+  <!-- ================= 2. لوحة تحكم الإدارة المالية والإدارية ================= -->
   <div id="app" class="app hidden">
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -166,20 +175,20 @@
       <nav class="sidebar-nav">
         <a class="nav-item active" onclick="showScreen('dashboard')">📊 الرئيسية</a>
         <a class="nav-item" onclick="showScreen('students')">👨‍🎓 شؤون الطلاب والكشوف</a>
-        <a class="nav-item" onclick="showScreen('register')">➕ تسجيل طالب</a>
-        <a class="nav-item" onclick="showScreen('payments')">💳 الخزينة والرسوم</a>
-        <a class="nav-item" onclick="showScreen('settings')">⚙️ الإعدادات والرسوم</a>
+        <a class="nav-item" onclick="showScreen('register')">➕ تسجيل طالب ودفعة</a>
+        <a class="nav-item" onclick="showScreen('payments')">💳 الخزينة والتحصيل المالي</a>
+        <a class="nav-item" onclick="showScreen('settings')">⚙️ الإعدادات والحسابات</a>
       </nav>
       <div class="sidebar-footer">
-        <span>👤 المدير</span>
+        <span id="user-display-tag">👤 المدير</span>
         <button type="button" class="btn btn-danger btn-sm" onclick="doLogout()">خروج</button>
       </div>
     </aside>
 
     <main class="main">
-      <!-- الإحصائيات -->
+      <!-- شاشة الإحصائيات -->
       <section id="screen-dashboard" class="screen">
-        <h2>لوحة المعلومات</h2>
+        <h2>لوحة المعلومات والإحصائيات</h2>
         <div class="stats-grid" style="margin-top:15px;">
           <div class="stat-card"><div class="stat-icon">👨‍🎓</div><div><h3 id="stat-total">0</h3><p>إجمالي الطلاب</p></div></div>
           <div class="stat-card"><div class="stat-icon">✅</div><div><h3 id="stat-active">0</h3><p>الطلاب المقيدين</p></div></div>
@@ -212,7 +221,7 @@
             </div>
             <div class="form-group">
               <label>بحث بالاسم أو القيد</label>
-              <input type="text" id="search-student" placeholder="🔍 اكتب اسم الطالب..." oninput="renderStudents()">
+              <input type="text" id="search-student" placeholder="🔍 اكتب اسم الطالب أو رقم القيد..." oninput="renderStudents()">
             </div>
           </div>
 
@@ -227,9 +236,9 @@
         </div>
       </section>
 
-      <!-- تسجيل طالب -->
+      <!-- تسجيل طالب جديد مع الدفعة الأولى والمتبقي -->
       <section id="screen-register" class="screen hidden">
-        <h2>➕ تسجيل طالب جديد</h2>
+        <h2>➕ تسجيل طالب جديد مع ضبط الدفعة النقدية الأولى</h2>
         <div class="card" style="margin-top:15px;">
           <form id="student-form" onsubmit="saveStudent(event)">
             <input type="hidden" id="edit-id">
@@ -248,6 +257,7 @@
               </div>
             </div>
 
+            <h4 style="margin-bottom:12px; color:#0284c7;">1. البيانات الشخصية والأكاديمية:</h4>
             <div class="form-row">
               <div class="form-group"><label>الاسم الكامل للطالب *</label><input type="text" id="f-name" required></div>
               <div class="form-group"><label>رقم القيد / الملف *</label><input type="text" id="f-fileno" required></div>
@@ -256,38 +266,60 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label>المرحلة *</label>
-                <select id="f-stage" onchange="updateGrades(this.value)" required>
+                <label>المرحلة الدراسية *</label>
+                <select id="f-stage" onchange="updateGrades(this.value); updateRegisterFeeCalculation();" required>
                   <option value="الابتدائية">الابتدائية</option>
                   <option value="الإعدادية">الإعدادية</option>
                   <option value="الثانوية">الثانوية</option>
                 </select>
               </div>
-              <div class="form-group"><label>الصف *</label><select id="f-grade" required></select></div>
+              <div class="form-group"><label>الصف الدراسي *</label><select id="f-grade" required></select></div>
               <div class="form-group">
                 <label>حالة القيد</label>
                 <select id="f-status"><option value="active">مقيد</option><option value="left">منسحب</option></select>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="margin-top:10px;">💾 حفظ بيانات الطالب</button>
+            <h4 style="margin:18px 0 10px; color:#16a34a;">2. الحسابات المالية والدفعة الأولى للشهر الأول:</h4>
+            <div class="form-row" style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+              <div class="form-group">
+                <label>إجمالي رسوم المرحلة الشهرية</label>
+                <input type="text" id="f-total-fee" readonly style="background:#e2e8f0; font-weight:bold;">
+              </div>
+              <div class="form-group">
+                <label>المبلغ المدفوع نقدياً الآن (الدفعة الأولى) *</label>
+                <input type="number" id="f-paid-amount" value="0" min="0" oninput="calculateRegisterBalance()">
+              </div>
+              <div class="form-group">
+                <label>المبلغ المتبقي على الطالب</label>
+                <input type="text" id="f-remaining-amount" readonly style="background:#fee2e2; color:#991b1b; font-weight:bold;">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top:15px; padding:12px 25px;">💾 حفظ بيانات الطالب والترحيل المالي</button>
           </form>
         </div>
       </section>
 
-      <!-- الخزينة والرسوم النقدية -->
+      <!-- الخزينة والتحصيل المالي والأقساط -->
       <section id="screen-payments" class="screen hidden">
-        <h2>💳 الخزينة والرسوم النقدية الشهرية</h2>
-        <div class="card" style="margin-top:15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+          <h2>💳 الخزينة والتحصيل المالي ومتابعة الديون</h2>
+        </div>
+
+        <!-- ملخص الحسابات الإجمالي للمدرسة -->
+        <div class="summary-grid" id="main-financial-summary"></div>
+
+        <div class="card">
           <div class="form-row">
             <div class="form-group">
-              <label>الشهر والسنة المستحقة</label>
+              <label>الشهر والسنة الدراسية المستحقة</label>
               <select id="pay-month-select" onchange="renderPayments()"></select>
             </div>
             <div class="form-group">
-              <label>عرض مرحلة معينة</label>
+              <label>فلترة حسب المرحلة</label>
               <select id="pay-stage-filter" onchange="renderPayments()">
-                <option value="">كل المراحل</option>
+                <option value="">جميع المراحل</option>
                 <option value="الابتدائية">الابتدائية</option>
                 <option value="الإعدادية">الإعدادية</option>
                 <option value="الثانوية">الثانوية</option>
@@ -295,12 +327,10 @@
             </div>
           </div>
 
-          <div class="summary-grid" id="pay-summary-boxes"></div>
-
           <table class="data-table">
             <thead>
               <tr>
-                <th>م</th><th>الطالب</th><th>المرحلة والصف</th><th>الرسوم المستحقة</th><th>طريقة الدفع</th><th>الحالة</th><th>رقم الإيصال</th><th>إجراء</th>
+                <th>م</th><th>الطالب</th><th>المرحلة</th><th>الرسوم المستحقة</th><th>المدفوع</th><th>المتبقي</th><th>تاريخ آخر دفعة</th><th>تاريخ الاستحقاق (أسبوع)</th><th>حالة السداد</th><th>إجراءات السداد</th>
               </tr>
             </thead>
             <tbody id="payments-tbody"></tbody>
@@ -308,16 +338,36 @@
         </div>
       </section>
 
-      <!-- الإعدادات والرسوم والمعلمين -->
+      <!-- الإعدادات والرسوم وحسابات المدير والمعلمين -->
       <section id="screen-settings" class="screen hidden">
-        <h2>⚙️ الإعدادات وتحديد رسوم المراحل</h2>
-        <div class="card" style="margin-top:15px;">
-          <h3>🏫 بيانات المدرسة والعملة النقدية</h3>
+        <h2>⚙️ الإعدادات العامة والسنوات والرسوم وحسابات الدخول</h2>
+        
+        <!-- تعديل حساب المدير -->
+        <div class="card" style="margin-top:15px; border-left: 4px solid #0284c7;">
+          <h3>🔐 تعديل بيانات دخول المدير (اسم المستخدم وكلمة المرور)</h3>
+          <p class="muted" style="color:#64748b; font-size:0.85rem; margin-bottom:12px;">يمكنك تغيير اسم الدخول وكلمة المرور هنا لضمان أمان النظام</p>
+          <div class="form-row">
+            <div class="form-group"><label>اسم مستخدم المدير الجديد</label><input type="text" id="set-admin-user"></div>
+            <div class="form-group"><label>كلمة مرور المدير الجديدة</label><input type="password" id="set-admin-pass"></div>
+          </div>
+          <button class="btn btn-primary" onclick="updateAdminCredentials()">🔒 حفظ بيانات دخول المدير</button>
+        </div>
+
+        <div class="card">
+          <h3>🏫 بيانات المدرسة وتحديد العام الدراسي (يشمل 2026 و 2027)</h3>
           <div class="form-row" style="margin-top:10px;">
             <div class="form-group"><label>اسم المدرسة</label><input type="text" id="set-school-name" value="مدرسة التاج النموذجية"></div>
-            <div class="form-group"><label>العام الدراسي</label><input type="text" id="set-year" value="2024-2025"></div>
             <div class="form-group">
-              <label>العملة النقدية</label>
+              <label>العام الدراسي المعمول به</label>
+              <select id="set-year">
+                <option value="2024-2025">2024-2025</option>
+                <option value="2025-2026">2025-2026</option>
+                <option value="2026-2027">2026-2027</option>
+                <option value="2027-2028">2027-2028</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>العملة النقدية المعمول بها</label>
               <select id="set-currency">
                 <option value="₪" selected>شيكل (₪)</option>
                 <option value="ر.س">ريال سعودي (ر.س)</option>
@@ -329,8 +379,7 @@
         </div>
 
         <div class="card">
-          <h3>💰 تحديد قيمة الرسوم الشهرية لكل مرحلة</h3>
-          <p class="muted" style="color:#64748b; font-size:0.85rem; margin-bottom:12px;">سيتم احتساب هذا المبلغ نقدياً لكل طالب في الخزينة والوصل بناءً على مرحلته</p>
+          <h3>💰 قيمة الرسوم الشهرية لكل مرحلة</h3>
           <div class="form-row">
             <div class="form-group"><label>رسوم المرحلة الابتدائية</label><input type="number" id="fee-primary" value="150"></div>
             <div class="form-group"><label>رسوم المرحلة الإعدادية</label><input type="number" id="fee-preparatory" value="200"></div>
@@ -365,7 +414,7 @@
     </main>
   </div>
 
-  <!-- ================= 3. بوابة المعلم التفاعلية ================= -->
+  <!-- ================= 3. بوابة المعلم ================= -->
   <div id="teacher-app" class="app hidden">
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -383,7 +432,6 @@
     </aside>
 
     <main class="main">
-      <!-- قسم رفع المواد والدروس للمدرس -->
       <div id="teacher-materials-section">
         <h2>📚 رفع وحفظ المواد والدروس التعليمية</h2>
         <div class="card" style="margin-top:15px;">
@@ -405,15 +453,12 @@
         </div>
       </div>
 
-      <!-- قسم استقبال وتصحيح واجبات الطلاب -->
       <div id="teacher-homeworks-section" class="hidden">
         <h2>📥 الواجبات والحلول المرفوعة من الطلاب</h2>
         <div class="card" style="margin-top:15px;">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>م</th><th>اسم الطالب</th><th>الصف</th><th>المادة</th><th>ملاحظة الطالب</th><th>تاريخ التسليم</th><th>ملف الحل المرفق</th>
-              </tr>
+              <tr><th>م</th><th>اسم الطالب</th><th>الصف</th><th>المادة</th><th>ملاحظة الطالب</th><th>تاريخ التسليم</th><th>ملف الحل المرفق</th></tr>
             </thead>
             <tbody id="teacher-hw-tbody"></tbody>
           </table>
@@ -422,7 +467,7 @@
     </main>
   </div>
 
-  <!-- ================= 4. بوابة الطالب التعليمية ================= -->
+  <!-- ================= 4. بوابة الطالب ================= -->
   <div id="student-app" class="app hidden">
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -445,36 +490,23 @@
         <p style="font-size:0.85rem; color:#0369a1;" id="std-info-sub"></p>
       </div>
 
-      <!-- قسم تحميل الدروس للطالب -->
       <div id="student-lessons-section">
         <h2>📚 المواد والدروس المتاحة لصفك الدراسي</h2>
         <div class="card" style="margin-top:15px;">
           <table class="data-table">
-            <thead>
-              <tr><th>م</th><th>عنوان الدرس</th><th>المادة</th><th>المعلم</th><th>تاريخ الرفع</th><th>تحميل الدرس</th></tr>
-            </thead>
+            <thead><tr><th>م</th><th>عنوان الدرس</th><th>المادة</th><th>المعلم</th><th>تاريخ الرفع</th><th>تحميل الدرس</th></tr></thead>
             <tbody id="std-mats-tbody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- قسم رفع الواجب للمعلم -->
       <div id="student-upload-hw-section" class="hidden">
         <h2>📤 إرسال ورفع حل الواجب للمعلم</h2>
         <div class="card" style="margin-top:15px;">
           <div class="form-row">
-            <div class="form-group">
-              <label>اختر المعلم والمادة *</label>
-              <select id="hw-target-teacher"></select>
-            </div>
-            <div class="form-group">
-              <label>ملاحظة أو عنوان الواجب</label>
-              <input type="text" id="hw-note" placeholder="حل تدريبات صفحة 25">
-            </div>
-            <div class="form-group">
-              <label>ملف الواجب (صورة الحل أو PDF) *</label>
-              <input type="file" id="hw-file">
-            </div>
+            <div class="form-group"><label>اختر المعلم والمادة *</label><select id="hw-target-teacher"></select></div>
+            <div class="form-group"><label>ملاحظة أو عنوان الواجب</label><input type="text" id="hw-note" placeholder="حل تدريبات صفحة 25"></div>
+            <div class="form-group"><label>ملف الواجب (صورة الحل أو PDF) *</label><input type="file" id="hw-file"></div>
           </div>
           <button class="btn btn-success" onclick="studentSubmitHomework()">⬆️ تسليم الواجب للمعلم</button>
         </div>
@@ -490,7 +522,33 @@
     </main>
   </div>
 
-  <!-- ================= 5. نافذة بطاقة الطالب ================= -->
+  <!-- ================= 5. نافذة تسجيل دفعة نقدية جديدة لطالب ================= -->
+  <div id="pay-modal" class="modal hidden">
+    <div class="pay-modal-box">
+      <h3 style="margin-bottom:10px; color:#0284c7;">💵 تسجيل دفعة نقدية جديدة</h3>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px;">للطالب: <strong id="modal-pay-student-name">---</strong></p>
+      
+      <div class="form-group">
+        <label>المبلغ المتبقي الحالي على الطالب</label>
+        <input type="text" id="modal-pay-current-due" readonly style="background:#fee2e2; color:#991b1b; font-weight:bold;">
+      </div>
+      <div class="form-group">
+        <label>المبلغ المدفوع نقدياً الآن *</label>
+        <input type="number" id="modal-pay-input-amt" min="1">
+      </div>
+      <div class="form-group">
+        <label>تاريخ السداد</label>
+        <input type="date" id="modal-pay-input-date">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:20px;">
+        <button class="btn btn-success" onclick="confirmModalPayment()">💾 اعتماد وتوليد إيصال القبض</button>
+        <button class="btn btn-secondary" onclick="closeModal('pay-modal')">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 6. نافذة بطاقة الطالب مع رمز QR تفاعلي ================= -->
   <div id="card-modal" class="modal hidden">
     <div class="card-modal-box">
       <div class="no-print" style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -506,16 +564,23 @@
             <div class="id-row">رقم القيد: <strong id="card-fileno">---</strong></div>
             <div class="id-row">المرحلة: <strong id="card-stage">---</strong></div>
             <div class="id-row">الصف: <strong id="card-grade">---</strong></div>
-            <div class="id-row">العام: <strong id="card-year">2024-2025</strong></div>
+            <div class="id-row">العام: <strong id="card-year">---</strong></div>
             <div class="id-row" style="color:#dc2626; font-weight:bold;">📞 طوارئ: <span id="card-phone">---</span></div>
           </div>
         </div>
-        <div class="id-footer"><span>بطاقة طالب مدرسية</span><span>ختم الإدارة</span></div>
+        <div class="id-footer">
+          <div>
+            <div style="font-weight:bold; font-size:0.75rem;">بطاقة هوية مدرسية</div>
+            <div style="font-size:0.7rem; color:#64748b;">امسح الكود للتحقق</div>
+          </div>
+          <!-- مكان توليد QR Code التلقائي -->
+          <div id="qrcode-container"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ================= 6. نافذة إيصال الدفع النقدي ================= -->
+  <!-- ================= 7. نافذة إيصال القبض المالي الرسمي ================= -->
   <div id="receipt-modal" class="modal hidden">
     <div class="receipt-modal-box">
       <div class="no-print" style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -528,13 +593,18 @@
         <hr style="margin-bottom:10px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
           <span>رقم الإيصال: <strong id="rec-no">---</strong></span>
-          <span>التاريخ: <strong id="rec-date">---</strong></span>
+          <span>تاريخ الدفعة: <strong id="rec-date">---</strong></span>
         </div>
         <p style="margin-bottom:8px;">استلمنا من الطالب: <strong id="rec-name">---</strong></p>
         <p style="margin-bottom:8px;">المرحلة والصف: <span id="rec-stage-grade">---</span></p>
         <p style="margin-bottom:8px;">عن شهر: <strong id="rec-month">---</strong></p>
         <p style="margin-bottom:8px;">طريقة الدفع: <strong>نقداً (كاش)</strong></p>
-        <div class="receipt-amount-box">المبلغ: <span id="rec-amount">0</span> <span id="rec-curr">₪</span></div>
+        <div class="receipt-amount-box">المبلغ المدفوع: <span id="rec-amount">0</span> <span id="rec-curr">₪</span></div>
+        <div style="background:#f8fafc; padding:10px; border-radius:6px; font-size:0.85rem; margin-bottom:15px;">
+          <div>إجمالي المستحق للشهر: <span id="rec-total-fee">0</span> <span id="rec-curr-sub">₪</span></div>
+          <div>المبلغ المتبقي بذمته: <strong id="rec-remaining" style="color:#991b1b;">0</strong> <span id="rec-curr-sub2">₪</span></div>
+          <div>تاريخ استحقاق المتبقي (أسبوع): <strong id="rec-due-date" style="color:#0284c7;">---</strong></div>
+        </div>
         <div style="display:flex; justify-content:space-between; margin-top:20px;">
           <div>توقيع أمين الصندوق: .............</div>
           <div>ختم واعتماد المدرسة</div>
@@ -543,7 +613,7 @@
     </div>
   </div>
 
-  <!-- ================= 7. نافذة التقرير وكشف المرحلة الشامل ================= -->
+  <!-- ================= 8. نافذة التقرير وكشف المرحلة الشامل ================= -->
   <div id="report-modal" class="modal hidden">
     <div class="report-modal-box">
       <div class="no-print" style="display:flex; justify-content:space-between; margin-bottom:15px;">
@@ -554,11 +624,11 @@
       <div class="report-sheet">
         <div class="report-header">
           <h2 id="rep-school">مدرسة التاج النموذجية</h2>
-          <h4 id="rep-title" style="color:#0284c7; margin-top:5px;">تقرير وكشف الطلاب العام</h4>
+          <h4 id="rep-title" style="color:#0284c7; margin-top:5px;">تقرير وكشف الطلاب العام والتحصيل المالي</h4>
           <p style="font-size:0.85rem; color:#64748b; margin-top:4px;">العام الدراسي: <span id="rep-year"></span> | تاريخ الاستخراج: <span id="rep-date"></span></p>
         </div>
 
-        <div style="margin-bottom:15px; background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+        <div style="margin-bottom:15px; background:#f8fafc; padding:12px; border-radius:6px; border:1px solid #e2e8f0;">
           <div style="display:flex; justify-content:space-around; font-size:0.9rem;">
             <div>إجمالي طلاب الكشف: <strong id="rep-total-count">0</strong></div>
             <div>المقيدين: <strong id="rep-active-count" style="color:#16a34a;">0</strong></div>
@@ -581,7 +651,7 @@
     </div>
   </div>
 
-  <!-- ================= منطق وبرمجة النظام التفاعلي بالكامل ================= -->
+  <!-- ================= برمجة النظام المحاسبي والإداري ================= -->
   <script>
     const getStore = k => JSON.parse(localStorage.getItem(k) || '[]');
     const setStore = (k, v) => localStorage.setItem(k, JSON.stringify(v));
@@ -589,12 +659,18 @@
     let currentLoggedInTeacher = null;
     let currentLoggedInStudent = null;
     let activeLoginRole = 'staff';
+    let activePayingStudent = null;
 
-    // الإعدادات الافتراضية
+    // حساب المدير المخزن (إذا لم يوجد نضع افتراضياً admin / 123 بدون إظهاره في الخانات)
+    function getAdminCredentials(){
+      return JSON.parse(localStorage.getItem('taj_admin_cred') || JSON.stringify({ user: 'admin', pass: '123' }));
+    }
+
+    // الإعدادات
     function getSettings(){
       const def = {
         schoolName: 'مدرسة التاج النموذجية',
-        year: '2024-2025',
+        year: '2025-2026',
         currency: '₪',
         fees: { primary: 150, preparatory: 200, secondary: 250 }
       };
@@ -608,7 +684,14 @@
     }
     const setSettings = v => localStorage.setItem('taj_cfg', JSON.stringify(v));
 
-    // التبديل في شاشة الدخول
+    // إضافة 7 أيام للتاريخ لحساب الاستحقاق
+    function addSevenDays(dateStr){
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() + 7);
+      return d.toISOString().slice(0, 10);
+    }
+
+    // تبديل تبويبات الدخول
     function switchLoginRole(role){
       activeLoginRole = role;
       document.getElementById('btn-role-admin').classList.toggle('active', role === 'staff');
@@ -618,7 +701,7 @@
       document.getElementById('login-error').textContent = '';
     }
 
-    // تسجيل الدخول (إدارة / معلم / طالب)
+    // تسجيل الدخول
     function doLogin(){
       const err = document.getElementById('login-error');
       err.textContent = '';
@@ -627,15 +710,20 @@
         const u = document.getElementById('login-username').value.trim();
         const p = document.getElementById('login-password').value.trim();
 
-        // 1. الإدارة
-        if(u === 'admin' && p === '123'){
+        if(!u || !p){
+          err.textContent = '⚠️ يرجى إدخال اسم المستخدم وكلمة المرور';
+          return;
+        }
+
+        const adminCred = getAdminCredentials();
+        if(u === adminCred.user && p === adminCred.pass){
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('app').classList.remove('hidden');
+          document.getElementById('user-display-tag').textContent = `👤 ${adminCred.user}`;
           showScreen('dashboard');
           return;
         }
 
-        // 2. المعلم
         const teachers = getStore('taj_teachers');
         const teacher = teachers.find(t => t.user === u && t.pass === p);
         if(teacher){
@@ -645,7 +733,6 @@
           document.getElementById('t-display-name').textContent = teacher.name;
           document.getElementById('mat-sub').value = teacher.subject || '';
           
-          // ملء صفوف المرحلة الخاصة بهذا المعلم
           const stg = teacher.stage || 'الابتدائية';
           document.getElementById('mat-grade').innerHTML = (grades[stg] || []).map(g => `<option value="${g}">${g}</option>`).join('');
           
@@ -656,10 +743,9 @@
 
         err.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
       } else {
-        // 3. الطالب برقم القيد
         const fileno = document.getElementById('login-student-fileno').value.trim();
         if(!fileno){
-          err.textContent = '⚠️ يرجى كتابة رقم القيد الخاص بك';
+          err.textContent = '⚠️ يرجى إدخال رقم القيد الخاص بك';
           return;
         }
 
@@ -670,7 +756,7 @@
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('student-app').classList.remove('hidden');
           document.getElementById('std-display-name').textContent = student.name;
-          document.getElementById('std-welcome-title').textContent = `أهلاً بك يا بطل: ${student.name}`;
+          document.getElementById('std-welcome-title').textContent = `أهلاً بك: ${student.name}`;
           document.getElementById('std-info-sub').textContent = `المرحلة: ${student.stage} | الصف: ${student.grade} | رقم القيد: ${student.fileno}`;
           
           fillStudentTeachersSelect();
@@ -679,20 +765,36 @@
           return;
         }
 
-        err.textContent = '❌ رقم القيد هذا غير مسجل في شؤون الطلاب!';
+        err.textContent = '❌ رقم القيد غير مسجل بالنظام';
       }
     }
 
     function doLogout(){
       currentLoggedInTeacher = null;
       currentLoggedInStudent = null;
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-student-fileno').value = '';
       document.getElementById('app').classList.add('hidden');
       document.getElementById('teacher-app').classList.add('hidden');
       document.getElementById('student-app').classList.add('hidden');
       document.getElementById('login-screen').classList.remove('hidden');
     }
 
-    // التنقل في لوحة الإدارة
+    // تحديث بيانات المدير
+    function updateAdminCredentials(){
+      const u = document.getElementById('set-admin-user').value.trim();
+      const p = document.getElementById('set-admin-pass').value.trim();
+      if(!u || !p){
+        alert('⚠️ يرجى تعبئة اسم المستخدم وكلمة المرور');
+        return;
+      }
+      localStorage.setItem('taj_admin_cred', JSON.stringify({ user: u, pass: p }));
+      document.getElementById('user-display-tag').textContent = `👤 ${u}`;
+      alert('✅ تم حفظ وتحديث بيانات دخول المدير بنجاح');
+    }
+
+    // التنقل في الشاشات
     function showScreen(name){
       document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
       document.querySelectorAll('.sidebar-nav .nav-item').forEach(n => n.classList.remove('active'));
@@ -701,11 +803,12 @@
 
       if(name === 'dashboard') updateDashboard();
       if(name === 'students') renderStudents();
+      if(name === 'register') { updateRegisterFeeCalculation(); }
       if(name === 'payments') { fillMonths(); renderPayments(); }
       if(name === 'settings') { loadSettings(); renderTeachers(); }
     }
 
-    // الصفوف الدراسية
+    // الصفوف
     const grades = {
       'الابتدائية': ['الأول الابتدائي','الثاني الابتدائي','الثالث الابتدائي','الرابع الابتدائي','الخامس الابتدائي','السادس الابتدائي'],
       'الإعدادية': ['الأول الإعدادي','الثاني الإعدادي','الثالث الإعدادي'],
@@ -717,7 +820,31 @@
     }
     updateGrades('الابتدائية');
 
-    // صورة وتسجيل الطالب
+    // حساب الرسوم في شاشة تسجيل الطالب
+    function getFeeForStudent(stage){
+      const cfg = getSettings();
+      if(stage === 'الابتدائية') return cfg.fees.primary;
+      if(stage === 'الإعدادية') return cfg.fees.preparatory;
+      if(stage === 'الثانوية') return cfg.fees.secondary;
+      return 150;
+    }
+
+    function updateRegisterFeeCalculation(){
+      const stg = document.getElementById('f-stage').value;
+      const fee = getFeeForStudent(stg);
+      document.getElementById('f-total-fee').value = `${fee} ${getSettings().currency}`;
+      calculateRegisterBalance();
+    }
+
+    function calculateRegisterBalance(){
+      const stg = document.getElementById('f-stage').value;
+      const fee = getFeeForStudent(stg);
+      const paid = parseFloat(document.getElementById('f-paid-amount').value) || 0;
+      const rem = Math.max(0, fee - paid);
+      document.getElementById('f-remaining-amount').value = `${rem} ${getSettings().currency}`;
+    }
+
+    // صورة وتسجيل الطالب مع الدفعة
     function handlePhotoUpload(input){
       if(input.files && input.files[0]){
         const r = new FileReader();
@@ -741,19 +868,48 @@
         return;
       }
 
+      const stg = document.getElementById('f-stage').value;
+      const studentId = 'S' + Date.now();
       const data = {
-        id: 'S' + Date.now(),
+        id: studentId,
         name: document.getElementById('f-name').value.trim(),
         fileno: fileno,
         phone: document.getElementById('f-phone').value.trim(),
-        stage: document.getElementById('f-stage').value,
+        stage: stg,
         grade: document.getElementById('f-grade').value,
         status: document.getElementById('f-status').value,
         photo: document.getElementById('student-photo-val').value
       };
       students.push(data);
       setStore('taj_students', students);
-      alert('✅ تم تسجيل الطالب بنجاح! رقم القيد لدخول الطالب هو: ' + data.fileno);
+
+      // تسجيل الدفعة الأولى إن وجدت
+      const paidAmt = parseFloat(document.getElementById('f-paid-amount').value) || 0;
+      if(paidAmt > 0){
+        const totalFee = getFeeForStudent(stg);
+        const today = new Date().toISOString().slice(0, 10);
+        const pays = getStore('taj_pays');
+        const cfg = getSettings();
+        const match = (cfg.year || '').match(/\d{4}/);
+        const y = match ? parseInt(match[0]) : 2025;
+        const currentMonth = `${y}-01`;
+
+        const newPay = {
+          id: 'P' + Date.now(),
+          sid: studentId,
+          m: currentMonth,
+          totalFee: totalFee,
+          paidAmt: paidAmt,
+          remainingAmt: Math.max(0, totalFee - paidAmt),
+          lastPayDate: today,
+          dueDate: addSevenDays(today),
+          recNo: 'REC-' + (pays.length + 101)
+        };
+        pays.push(newPay);
+        setStore('taj_pays', pays);
+      }
+
+      alert('✅ تم حفظ بيانات الطالب والترحيل المالي بنجاح! رقم قيد الطالب: ' + data.fileno);
       document.getElementById('student-form').reset();
       document.getElementById('photo-preview').style.display = 'none';
       document.getElementById('photo-ph').style.display = 'block';
@@ -783,7 +939,7 @@
           <td style="color:#dc2626; font-weight:bold;">${s.phone || '—'}</td>
           <td><span class="badge ${s.status==='active'?'b-active':'b-left'}">${s.status==='active'?'مقيد':'منسحب'}</span></td>
           <td>
-            <button class="btn btn-primary btn-sm" onclick="showCard('${s.id}')">🪪 بطاقة الطالب</button>
+            <button class="btn btn-primary btn-sm" onclick="showCard('${s.id}')">🪪 بطاقة الطالب وQR</button>
             <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button>
           </td>
         </tr>
@@ -805,7 +961,7 @@
       document.getElementById('stat-sec').textContent = s.filter(x => x.stage === 'الثانوية').length;
     }
 
-    // بطاقة الطالب
+    // بطاقة الطالب وتوليد QR Code
     function showCard(id){
       const s = getStore('taj_students').find(x => x.id === id);
       if(!s) return;
@@ -818,29 +974,36 @@
       document.getElementById('card-year').textContent = cfg.year;
       document.getElementById('card-phone').textContent = s.phone;
       document.getElementById('card-photo').src = s.photo || 'logo.png';
+
+      // توليد QR Code التفاعلي
+      const qrBox = document.getElementById('qrcode-container');
+      qrBox.innerHTML = '';
+      const qrData = `مدرسة التاج | الطالب: ${s.name} | رقم القيد: ${s.fileno} | المرحلة: ${s.stage} - ${s.grade} | هاتف: ${s.phone}`;
+      new QRCode(qrBox, {
+        text: qrData,
+        width: 65,
+        height: 65,
+        colorDark : "#0f172a",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M
+      });
+
       document.getElementById('card-modal').classList.remove('hidden');
     }
 
-    // الرسوم والخزينة
-    function getFeeForStudent(stage){
-      const cfg = getSettings();
-      if(stage === 'الابتدائية') return cfg.fees.primary;
-      if(stage === 'الإعدادية') return cfg.fees.preparatory;
-      if(stage === 'الثانوية') return cfg.fees.secondary;
-      return 150;
-    }
-
+    // الشهور
     function fillMonths(){
       const sel = document.getElementById('pay-month-select');
       const cfg = getSettings();
       const match = (cfg.year || '').match(/\d{4}/);
-      const y = match ? parseInt(match[0]) : 2024;
+      const y = match ? parseInt(match[0]) : 2025;
 
       sel.innerHTML = [1,2,3,4,5,6,7,8,9,10,11,12].map(m => 
         `<option value="${y}-${String(m).padStart(2,'0')}">شهر ${m} (${y})</option>`
       ).join('');
     }
 
+    // النظام المحاسبي الشامل
     function renderPayments(){
       const m = document.getElementById('pay-month-select').value;
       const stageF = document.getElementById('pay-stage-filter').value;
@@ -850,76 +1013,147 @@
       const payments = getStore('taj_pays');
       const cfg = getSettings();
 
-      let totalExpected = 0, totalPaid = 0;
+      let grandExpected = 0;
+      let grandPaid = 0;
 
       const tb = document.getElementById('payments-tbody');
       tb.innerHTML = students.map((s, idx) => {
-        const fee = getFeeForStudent(s.stage);
-        totalExpected += fee;
+        const fullFee = getFeeForStudent(s.stage);
+        grandExpected += fullFee;
+
         const p = payments.find(x => x.sid === s.id && x.m === m);
-        const isPaid = !!p;
-        if(isPaid) totalPaid += (p.amt || fee);
+        const paid = p ? p.paidAmt : 0;
+        const rem = p ? p.remainingAmt : fullFee;
+        grandPaid += paid;
+
+        let badgeClass = 'b-unpaid';
+        let badgeText = 'غير مسدد';
+        if(paid >= fullFee){
+          badgeClass = 'b-paid';
+          badgeText = 'مسدد بالكامل';
+        } else if(paid > 0 && rem > 0){
+          badgeClass = 'b-partial';
+          badgeText = 'سداد جزئي';
+        }
 
         return `
           <tr>
             <td>${idx+1}</td>
             <td><strong>${s.name}</strong></td>
-            <td>${s.stage} - ${s.grade}</td>
-            <td><strong>${fee} ${cfg.currency}</strong></td>
-            <td>${isPaid ? 'نقداً (كاش)' : '—'}</td>
-            <td><span class="badge ${isPaid?'b-paid':'b-unpaid'}">${isPaid?'مسدد':'غير مسدد'}</span></td>
-            <td><code>${isPaid ? p.recNo : '—'}</code></td>
+            <td>${s.stage}</td>
+            <td><strong>${fullFee} ${cfg.currency}</strong></td>
+            <td style="color:#16a34a; font-weight:bold;">${paid} ${cfg.currency}</td>
+            <td style="color:#991b1b; font-weight:bold;">${rem} ${cfg.currency}</td>
+            <td>${p ? p.lastPayDate : '—'}</td>
+            <td style="color:#0284c7; font-weight:bold;">${p && rem > 0 ? p.dueDate : (rem === 0 ? 'خالص' : '—')}</td>
+            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
             <td>
-              ${isPaid 
-                ? `<button class="btn btn-primary btn-sm" onclick="showReceipt('${p.id}')">🧾 طباعة الوصل</button>
-                   <button class="btn-unpay" onclick="cancelPay('${s.id}','${m}')">إلغاء</button>` 
-                : `<button class="btn-pay" onclick="payCash('${s.id}','${m}',${fee})">💵 سداد نقدي (كاش)</button>`
+              ${rem > 0 
+                ? `<button class="btn btn-primary btn-sm" onclick="openPaymentModal('${s.id}', '${m}', ${rem})">💵 تحصيل دفعة</button>`
+                : `<button class="btn btn-secondary btn-sm" disabled>✅ تم السداد</button>`
               }
+              ${p ? `<button class="btn btn-success btn-sm" onclick="showReceipt('${p.id}')">🧾 الوصل</button>` : ''}
             </td>
           </tr>
         `;
       }).join('');
 
-      document.getElementById('pay-summary-boxes').innerHTML = `
-        <div class="sum-box blue"><div class="num">${students.length}</div><div>الطلاب</div></div>
-        <div class="sum-box green"><div class="num">${totalPaid} ${cfg.currency}</div><div>المحصّل نقداً</div></div>
-        <div class="sum-box red"><div class="num">${totalExpected - totalPaid} ${cfg.currency}</div><div>المتبقي تحصيله</div></div>
+      // لوحة الحسابات الإجمالية المركزية
+      const grandRemaining = grandExpected - grandPaid;
+      document.getElementById('main-financial-summary').innerHTML = `
+        <div class="sum-box blue">
+          <div class="num">${grandExpected.toLocaleString('ar-SA')} ${cfg.currency}</div>
+          <div class="lbl">إجمالي الرسوم المستحقة للمدرسة</div>
+        </div>
+        <div class="sum-box green">
+          <div class="num">${grandPaid.toLocaleString('ar-SA')} ${cfg.currency}</div>
+          <div class="lbl">إجمالي المبالغ المحصلة فعلياً</div>
+        </div>
+        <div class="sum-box red">
+          <div class="num">${grandRemaining.toLocaleString('ar-SA')} ${cfg.currency}</div>
+          <div class="lbl">إجمالي المتبقي والديون المطلوبة</div>
+        </div>
       `;
     }
 
-    function payCash(sid, m, amt){
-      const pays = getStore('taj_pays');
-      const newPay = {
-        id: 'P' + Date.now(),
-        sid: sid, m: m, amt: amt,
-        date: new Date().toISOString().slice(0,10),
-        recNo: 'REC-' + (pays.length + 101)
-      };
-      pays.push(newPay);
-      setStore('taj_pays', pays);
-      renderPayments();
-      showReceipt(newPay.id);
+    // فتح نافذة تحصيل الدفعة النقدية
+    function openPaymentModal(studentId, month, currentDue){
+      const s = getStore('taj_students').find(x => x.id === studentId);
+      if(!s) return;
+      activePayingStudent = { student: s, month: month, due: currentDue };
+
+      document.getElementById('modal-pay-student-name').textContent = `${s.name} (قيد: ${s.fileno})`;
+      document.getElementById('modal-pay-current-due').value = `${currentDue} ${getSettings().currency}`;
+      document.getElementById('modal-pay-input-amt').value = currentDue; // افتراضياً المبلغ المتبقي كاملاً
+      document.getElementById('modal-pay-input-date').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('pay-modal').classList.remove('hidden');
     }
 
-    function cancelPay(sid, m){
-      if(!confirm('إلغاء عملية الدفع؟')) return;
-      setStore('taj_pays', getStore('taj_pays').filter(x => !(x.sid === sid && x.m === m)));
+    // اعتماد الدفعة وتوليد تاريخ استحقاق (أسبوع)
+    function confirmModalPayment(){
+      if(!activePayingStudent) return;
+      const amt = parseFloat(document.getElementById('modal-pay-input-amt').value) || 0;
+      const payDate = document.getElementById('modal-pay-input-date').value || new Date().toISOString().slice(0, 10);
+
+      if(amt <= 0){
+        alert('⚠️ يرجى إدخال مبلغ صحيح');
+        return;
+      }
+      if(amt > activePayingStudent.due){
+        alert('⚠️ المبلغ المدخل أكبر من المتبقي على الطالب');
+        return;
+      }
+
+      const pays = getStore('taj_pays');
+      let p = pays.find(x => x.sid === activePayingStudent.student.id && x.m === activePayingStudent.month);
+      const fullFee = getFeeForStudent(activePayingStudent.student.stage);
+
+      if(p){
+        p.paidAmt += amt;
+        p.remainingAmt = Math.max(0, fullFee - p.paidAmt);
+        p.lastPayDate = payDate;
+        p.dueDate = addSevenDays(payDate);
+      } else {
+        p = {
+          id: 'P' + Date.now(),
+          sid: activePayingStudent.student.id,
+          m: activePayingStudent.month,
+          totalFee: fullFee,
+          paidAmt: amt,
+          remainingAmt: Math.max(0, fullFee - amt),
+          lastPayDate: payDate,
+          dueDate: addSevenDays(payDate),
+          recNo: 'REC-' + (pays.length + 101)
+        };
+        pays.push(p);
+      }
+
+      setStore('taj_pays', pays);
+      closeModal('pay-modal');
       renderPayments();
+      showReceipt(p.id);
     }
 
     function showReceipt(pid){
       const p = getStore('taj_pays').find(x => x.id === pid);
+      if(!p) return;
       const s = getStore('taj_students').find(x => x.id === p.sid);
       const cfg = getSettings();
 
       document.getElementById('rec-school').textContent = cfg.schoolName;
       document.getElementById('rec-no').textContent = p.recNo;
-      document.getElementById('rec-date').textContent = p.date;
+      document.getElementById('rec-date').textContent = p.lastPayDate;
       document.getElementById('rec-name').textContent = s.name;
       document.getElementById('rec-stage-grade').textContent = `${s.stage} - ${s.grade}`;
       document.getElementById('rec-month').textContent = p.m;
-      document.getElementById('rec-amount').textContent = p.amt;
+      document.getElementById('rec-amount').textContent = p.paidAmt;
+      document.getElementById('rec-total-fee').textContent = p.totalFee;
+      document.getElementById('rec-remaining').textContent = p.remainingAmt;
+      document.getElementById('rec-due-date').textContent = p.remainingAmt > 0 ? p.dueDate : 'تم السداد بالكامل';
+      
       document.getElementById('rec-curr').textContent = cfg.currency;
+      document.getElementById('rec-curr-sub').textContent = cfg.currency;
+      document.getElementById('rec-curr-sub2').textContent = cfg.currency;
       document.getElementById('receipt-modal').classList.remove('hidden');
     }
 
@@ -968,12 +1202,16 @@
       document.getElementById('fee-primary').value = c.fees.primary;
       document.getElementById('fee-preparatory').value = c.fees.preparatory;
       document.getElementById('fee-secondary').value = c.fees.secondary;
+
+      const adminCred = getAdminCredentials();
+      document.getElementById('set-admin-user').value = adminCred.user;
+      document.getElementById('set-admin-pass').value = adminCred.pass;
     }
 
     function saveSettings(){
       const c = {
         schoolName: document.getElementById('set-school-name').value.trim(),
-        year: document.getElementById('set-year').value.trim(),
+        year: document.getElementById('set-year').value,
         currency: document.getElementById('set-currency').value,
         fees: {
           primary: parseInt(document.getElementById('fee-primary').value) || 0,
@@ -983,7 +1221,7 @@
       };
       setSettings(c);
       fillMonths();
-      alert('✅ تم حفظ إعدادات المدرسة والرسوم النقدية بنجاح');
+      alert('✅ تم حفظ إعدادات المدرسة والسنوات والرسوم بنجاح');
     }
 
     // إدارة المعلمين
@@ -1026,7 +1264,7 @@
       renderTeachers();
     }
 
-    /* ================= منطق بوابة المعلم ================= */
+    // بوابة المعلم
     function switchTeacherTab(tab){
       document.getElementById('teacher-materials-section').classList.toggle('hidden', tab !== 'materials');
       document.getElementById('teacher-homeworks-section').classList.toggle('hidden', tab !== 'homeworks');
@@ -1062,7 +1300,7 @@
           date: new Date().toISOString().slice(0, 10)
         });
         setStore('taj_materials', mats);
-        alert('✅ تم رفع الدرس وحفظه بصفحتك بنجاح وسيكون متاحاً للطلاب!');
+        alert('✅ تم رفع الدرس وحفظه بنجاح!');
         document.getElementById('mat-title').value = '';
         fileInput.value = '';
         renderTeacherMaterials();
@@ -1074,7 +1312,7 @@
       const list = getStore('taj_materials').filter(m => m.teacherId === currentLoggedInTeacher.id);
       const tb = document.getElementById('teacher-mats-tbody');
       if(!list.length){
-        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#64748b;">لم ترفع أي مواد حتى الآن</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#64748b;">لم ترفع أي مواد بعد</td></tr>`;
         return;
       }
       tb.innerHTML = list.map((m, idx) => `
@@ -1102,7 +1340,7 @@
       const hwList = getStore('taj_homeworks').filter(h => h.teacherId === currentLoggedInTeacher.id);
       const tb = document.getElementById('teacher-hw-tbody');
       if(!hwList.length){
-        tb.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:15px; color:#64748b;">لا توجد واجبات مرفوعة من الطلاب حتى الآن</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:15px; color:#64748b;">لا توجد واجبات مرفوعة حتى الآن</td></tr>`;
         return;
       }
       tb.innerHTML = hwList.map((h, idx) => `
@@ -1114,13 +1352,13 @@
           <td>${h.note || '—'}</td>
           <td>${h.date}</td>
           <td>
-            <button class="btn btn-success btn-sm" onclick="downloadFile('${h.fileData}', '${h.fileName}')">⬇️ تحميل حل الواجب</button>
+            <button class="btn btn-success btn-sm" onclick="downloadFile('${h.fileData}', '${h.fileName}')">⬇️ تحميل الحل</button>
           </td>
         </tr>
       `).join('');
     }
 
-    /* ================= منطق بوابة الطالب ================= */
+    // بوابة الطالب
     function switchStudentTab(tab){
       document.getElementById('student-lessons-section').classList.toggle('hidden', tab !== 'lessons');
       document.getElementById('student-upload-hw-section').classList.toggle('hidden', tab !== 'upload-hw');
@@ -1139,11 +1377,10 @@
     }
 
     function renderStudentMaterials(){
-      // المواد المخصصة لصف ومرحلة الطالب فقط
       const mats = getStore('taj_materials').filter(m => m.stage === currentLoggedInStudent.stage && m.grade === currentLoggedInStudent.grade);
       const tb = document.getElementById('std-mats-tbody');
       if(!mats.length){
-        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#64748b;">لا توجد دروس مرفوعة لصفك الدراسي حالياً</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#64748b;">لا توجد دروس مرفوعة لصفك حالياً</td></tr>`;
         return;
       }
       tb.innerHTML = mats.map((m, idx) => `
@@ -1154,7 +1391,7 @@
           <td>${m.teacherName}</td>
           <td>${m.date}</td>
           <td>
-            <button class="btn btn-primary btn-sm" onclick="downloadFile('${m.fileData}', '${m.fileName}')">⬇️ تحميل الدرس والمرفق</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadFile('${m.fileData}', '${m.fileName}')">⬇️ تحميل الدرس</button>
           </td>
         </tr>
       `).join('');
@@ -1192,7 +1429,7 @@
           date: new Date().toISOString().slice(0, 10)
         });
         setStore('taj_homeworks', hwList);
-        alert('✅ رائع! تم إرسال الواجب لمعلمك بنجاح وسيقوم بمراجعته.');
+        alert('✅ تم إرسال الواجب لمعلمك بنجاح!');
         document.getElementById('hw-note').value = '';
         fileInput.value = '';
         renderStudentMyHomeworks();
@@ -1218,7 +1455,6 @@
       `).join('');
     }
 
-    // تنزيل الملفات
     function downloadFile(dataUrl, name){
       const a = document.createElement('a');
       a.href = dataUrl;
@@ -1230,4 +1466,3 @@
   </script>
 </body>
 </html>
-
